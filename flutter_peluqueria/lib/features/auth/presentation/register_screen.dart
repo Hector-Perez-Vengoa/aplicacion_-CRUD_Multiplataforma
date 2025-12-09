@@ -1,0 +1,452 @@
+import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
+import '../../../core/widgets/loading_widget.dart';
+import '../application/auth_provider.dart';
+import '../data/dtos/register_request.dart';
+import '../../client/application/service_provider.dart';
+
+class RegisterScreen extends ConsumerStatefulWidget {
+  const RegisterScreen({super.key});
+
+  @override
+  ConsumerState<RegisterScreen> createState() => _RegisterScreenState();
+}
+
+class _RegisterScreenState extends ConsumerState<RegisterScreen> {
+  final _nombreController = TextEditingController();
+  final _emailController = TextEditingController();
+  final _telefonoController = TextEditingController();
+  final _passwordController = TextEditingController();
+  final _confirmPasswordController = TextEditingController();
+  final _formKey = GlobalKey<FormState>();
+
+  String _selectedRole = 'cliente'; // 'cliente' o 'peluquero'
+  bool _obscurePassword = true;
+  bool _obscureConfirmPassword = true;
+  String? _errorMessage;
+  List<String> _selectedServices = []; // Servicios seleccionados para peluquero
+
+  @override
+  void dispose() {
+    _nombreController.dispose();
+    _emailController.dispose();
+    _telefonoController.dispose();
+    _passwordController.dispose();
+    _confirmPasswordController.dispose();
+    super.dispose();
+  }
+
+  Future<void> _handleRegister() async {
+    if (!_formKey.currentState!.validate()) return;
+
+    // Validar que si es peluquero, tenga servicios seleccionados
+    if (_selectedRole == 'peluquero' && _selectedServices.isEmpty) {
+      setState(() => _errorMessage = 'Debes seleccionar al menos un servicio especializado');
+      return;
+    }
+
+    try {
+      setState(() => _errorMessage = null);
+
+      final request = RegisterRequest(
+        nombre: _nombreController.text.trim(),
+        email: _emailController.text.trim(),
+        telefono: _telefonoController.text.trim(),
+        password: _passwordController.text,
+        rol: _selectedRole,
+        serviciosEspecializados: _selectedRole == 'peluquero' ? _selectedServices : null,
+      );
+
+      final authResponse =
+          await ref.read(authNotifierProvider.notifier).register(request);
+
+      // Navegar según el resultado del registro
+      if (mounted) {
+        // Si requiere aprobación, mostrar pantalla de pendiente
+        if (authResponse.requiresApproval) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Tu solicitud fue enviada. Un administrador revisará tu perfil.'),
+              duration: Duration(seconds: 3),
+            ),
+          );
+          context.go('/login');
+          return;
+        }
+
+        final redirect = authResponse.redirectUrl;
+        String finalRoute = '/home'; // Ruta por defecto
+
+        if (redirect != null && redirect.isNotEmpty) {
+          // Mapear rutas del backend a rutas de Flutter
+          finalRoute = _mapBackendRouteToFlutter(redirect);
+        } else {
+          // Usar el rol seleccionado
+          if (_selectedRole == 'cliente') {
+            finalRoute = '/home';
+          } else if (_selectedRole == 'peluquero') {
+            finalRoute = '/hairstylist';
+          }
+        }
+
+        if (mounted) {
+          context.go(finalRoute);
+        }
+      }
+    } catch (e) {
+      setState(() => _errorMessage = e.toString());
+    }
+  }
+
+  String _mapBackendRouteToFlutter(String backendRoute) {
+    // Mapear rutas del backend a rutas de Flutter
+    final routeMap = {
+      '/cliente/dashboard': '/home',
+      '/cliente/citas': '/appointments',
+      '/peluquero/dashboard': '/hairstylist',
+      '/peluquero/agenda': '/hairstylist/agenda',
+      '/admin/dashboard': '/admin',
+      '/admin/servicios': '/admin/services',
+      '/admin/peluqueros': '/admin/hairstylists',
+    };
+
+    // Si la ruta exacta existe en el mapeo, usarla
+    if (routeMap.containsKey(backendRoute)) {
+      return routeMap[backendRoute]!;
+    }
+
+    // Si comienza con /cliente, enviar a home
+    if (backendRoute.startsWith('/cliente')) {
+      return '/home';
+    }
+
+    // Si comienza con /peluquero, enviar a hairstylist
+    if (backendRoute.startsWith('/peluquero')) {
+      return '/hairstylist';
+    }
+
+    // Si comienza con /admin, enviar a admin
+    if (backendRoute.startsWith('/admin')) {
+      return '/admin';
+    }
+
+    // Por defecto, ir a home
+    return '/home';
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final authState = ref.watch(authNotifierProvider);
+
+    if (authState.isLoading) {
+      return Scaffold(
+        body: LoadingWidget(message: 'Registrando cuenta...'),
+      );
+    }
+
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Registrarse'),
+        elevation: 0,
+      ),
+      body: SafeArea(
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.all(24.0),
+          child: Form(
+            key: _formKey,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                // Header
+                const SizedBox(height: 16),
+                Icon(
+                  Icons.person_add_outlined,
+                  size: 80,
+                  color: Theme.of(context).colorScheme.primary,
+                ),
+                const SizedBox(height: 24),
+
+                // Error message
+                if (_errorMessage != null)
+                  Padding(
+                    padding: const EdgeInsets.only(bottom: 16),
+                    child: Container(
+                      padding: const EdgeInsets.all(12),
+                      decoration: BoxDecoration(
+                        color: Theme.of(context).colorScheme.error.withValues(alpha: 0.1),
+                        border: Border.all(
+                          color: Theme.of(context).colorScheme.error,
+                        ),
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: Text(
+                        _errorMessage!,
+                        style: TextStyle(
+                          color: Theme.of(context).colorScheme.error,
+                          fontSize: 14,
+                        ),
+                      ),
+                    ),
+                  ),
+
+                // Role selector
+                Padding(
+                  padding: const EdgeInsets.only(bottom: 16),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'Tipo de cuenta',
+                        style: Theme.of(context).textTheme.labelLarge,
+                      ),
+                      const SizedBox(height: 8),
+                      SegmentedButton<String>(
+                        segments: const [
+                          ButtonSegment(
+                            value: 'cliente',
+                            label: Text('Cliente'),
+                            icon: Icon(Icons.person),
+                          ),
+                          ButtonSegment(
+                            value: 'peluquero',
+                            label: Text('Peluquero'),
+                            icon: Icon(Icons.cut),
+                          ),
+                        ],
+                        selected: {_selectedRole},
+                        onSelectionChanged: (Set<String> newSelection) {
+                          setState(() {
+                            _selectedRole = newSelection.first;
+                            _selectedServices = []; // Limpiar servicios cuando se cambia el rol
+                          });
+                        },
+                      ),
+                    ],
+                  ),
+                ),
+
+                // Services selector (solo para peluquero)
+                if (_selectedRole == 'peluquero')
+                  Padding(
+                    padding: const EdgeInsets.only(bottom: 16),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'Servicios especializados',
+                          style: Theme.of(context).textTheme.labelLarge,
+                        ),
+                        const SizedBox(height: 8),
+                        Consumer(
+                          builder: (context, ref, child) {
+                            final servicesAsync = ref.watch(publicServiceProviderProvider);
+                            return servicesAsync.when(
+                              data: (services) {
+                                if (services.isEmpty) {
+                                  return const Text('No hay servicios disponibles');
+                                }
+                                return Wrap(
+                                  spacing: 8,
+                                  runSpacing: 8,
+                                  children: services
+                                      .map((service) => FilterChip(
+                                            label: Text(service.nombre),
+                                            selected: _selectedServices.contains(service.id),
+                                            onSelected: (selected) {
+                                              setState(() {
+                                                if (selected) {
+                                                  _selectedServices.add(service.id);
+                                                } else {
+                                                  _selectedServices.remove(service.id);
+                                                }
+                                              });
+                                            },
+                                          ))
+                                      .toList(),
+                                );
+                              },
+                              loading: () => const CircularProgressIndicator(),
+                              error: (error, _) => Text('Error: $error'),
+                            );
+                          },
+                        ),
+                        if (_selectedServices.isEmpty && _selectedRole == 'peluquero')
+                          Padding(
+                            padding: const EdgeInsets.only(top: 8),
+                            child: Text(
+                              'Debes seleccionar al menos un servicio',
+                              style: TextStyle(
+                                color: Theme.of(context).colorScheme.error,
+                                fontSize: 12,
+                              ),
+                            ),
+                          ),
+                      ],
+                    ),
+                  ),
+
+                // Nombre field
+                TextFormField(
+                  controller: _nombreController,
+                  decoration: const InputDecoration(
+                    labelText: 'Nombre completo',
+                    prefixIcon: Icon(Icons.person_outline),
+                  ),
+                  validator: (value) {
+                    if (value?.isEmpty ?? true) {
+                      return 'Por favor ingresa tu nombre';
+                    }
+                    return null;
+                  },
+                  enabled: !authState.isLoading,
+                ),
+                const SizedBox(height: 16),
+
+                // Email field
+                TextFormField(
+                  controller: _emailController,
+                  decoration: const InputDecoration(
+                    labelText: 'Correo electrónico',
+                    hintText: 'usuario@example.com',
+                    prefixIcon: Icon(Icons.email_outlined),
+                  ),
+                  keyboardType: TextInputType.emailAddress,
+                  validator: (value) {
+                    if (value?.isEmpty ?? true) {
+                      return 'Por favor ingresa tu correo';
+                    }
+                    if (!RegExp(r'^[^@]+@[^@]+\.[^@]+').hasMatch(value!)) {
+                      return 'Ingresa un correo válido';
+                    }
+                    return null;
+                  },
+                  enabled: !authState.isLoading,
+                ),
+                const SizedBox(height: 16),
+
+                // Teléfono field
+                TextFormField(
+                  controller: _telefonoController,
+                  decoration: const InputDecoration(
+                    labelText: 'Teléfono',
+                    prefixIcon: Icon(Icons.phone_outlined),
+                  ),
+                  keyboardType: TextInputType.phone,
+                  validator: (value) {
+                    if (value?.isEmpty ?? true) {
+                      return 'Por favor ingresa tu teléfono';
+                    }
+                    return null;
+                  },
+                  enabled: !authState.isLoading,
+                ),
+                const SizedBox(height: 16),
+
+                // Password field
+                TextFormField(
+                  controller: _passwordController,
+                  decoration: InputDecoration(
+                    labelText: 'Contraseña',
+                    hintText: '••••••••',
+                    prefixIcon: const Icon(Icons.lock_outlined),
+                    suffixIcon: IconButton(
+                      icon: Icon(
+                        _obscurePassword ? Icons.visibility_off : Icons.visibility,
+                      ),
+                      onPressed: () {
+                        setState(() => _obscurePassword = !_obscurePassword);
+                      },
+                    ),
+                  ),
+                  obscureText: _obscurePassword,
+                  validator: (value) {
+                    if (value?.isEmpty ?? true) {
+                      return 'Por favor ingresa una contraseña';
+                    }
+                    if (value!.length < 8) {
+                      return 'La contraseña debe tener al menos 8 caracteres';
+                    }
+                    if (!value.contains(RegExp(r'[A-Z]'))) {
+                      return 'Debe contener al menos una mayúscula';
+                    }
+                    if (!value.contains(RegExp(r'[a-z]'))) {
+                      return 'Debe contener al menos una minúscula';
+                    }
+                    if (!value.contains(RegExp(r'[0-9]'))) {
+                      return 'Debe contener al menos un número';
+                    }
+                    return null;
+                  },
+                  enabled: !authState.isLoading,
+                ),
+                const SizedBox(height: 16),
+
+                // Confirm Password field
+                TextFormField(
+                  controller: _confirmPasswordController,
+                  decoration: InputDecoration(
+                    labelText: 'Confirmar contraseña',
+                    hintText: '••••••••',
+                    prefixIcon: const Icon(Icons.lock_outlined),
+                    suffixIcon: IconButton(
+                      icon: Icon(
+                        _obscureConfirmPassword ? Icons.visibility_off : Icons.visibility,
+                      ),
+                      onPressed: () {
+                        setState(() => _obscureConfirmPassword = !_obscureConfirmPassword);
+                      },
+                    ),
+                  ),
+                  obscureText: _obscureConfirmPassword,
+                  validator: (value) {
+                    if (value?.isEmpty ?? true) {
+                      return 'Por favor confirma tu contraseña';
+                    }
+                    if (value != _passwordController.text) {
+                      return 'Las contraseñas no coinciden';
+                    }
+                    return null;
+                  },
+                  enabled: !authState.isLoading,
+                ),
+                const SizedBox(height: 24),
+
+                // Register button
+                ElevatedButton(
+                  onPressed: authState.isLoading ? null : _handleRegister,
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 16),
+                    child: authState.isLoading
+                        ? const SizedBox(
+                            height: 20,
+                            width: 20,
+                            child: CircularProgressIndicator(strokeWidth: 2),
+                          )
+                        : const Text(
+                            'Registrarse',
+                            style: TextStyle(fontSize: 16),
+                          ),
+                  ),
+                ),
+                const SizedBox(height: 16),
+
+                // Login link
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    const Text('¿Ya tienes cuenta? '),
+                    TextButton(
+                      onPressed: () => context.go('/login'),
+                      child: const Text('Inicia sesión'),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
