@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../../core/widgets/floating_notification.dart';
-import '../../../core/widgets/premium_app_bar.dart';
 import '../../../domain/models/peluquero.dart';
 import '../../../domain/models/servicio.dart';
 import '../application/service_provider.dart';
@@ -21,14 +20,8 @@ class _BookAppointmentScreenState extends ConsumerState<BookAppointmentScreen> {
   Peluquero? selectedHairstylist;
   Servicio? selectedService;
   DateTime? selectedDate;
-  String? selectedTime;
+  TimeOfDay? selectedTime;
   late TextEditingController _notesController;
-
-  final List<String> timeSlots = [
-    '08:00', '08:30', '09:00', '09:30', '10:00', '10:30',
-    '11:00', '11:30', '12:00', '14:00', '14:30', '15:00',
-    '15:30', '16:00', '16:30', '17:00', '17:30', '18:00',
-  ];
 
   @override
   void initState() {
@@ -55,19 +48,28 @@ class _BookAppointmentScreenState extends ConsumerState<BookAppointmentScreen> {
   }
 
   Future<void> _selectTime() async {
-    await showDialog(
+    final TimeOfDay initial = selectedTime ?? TimeOfDay.fromDateTime(DateTime.now().add(const Duration(minutes: 30)));
+    final TimeOfDay? picked = await showTimePicker(
       context: context,
-      builder: (context) => SimpleDialog(
-        title: const Text('Selecciona una hora'),
-        children: timeSlots.map((time) => SimpleDialogOption(
-          onPressed: () {
-            setState(() => selectedTime = time);
-            Navigator.pop(context);
-          },
-          child: Text(time),
-        )).toList(),
-      ),
+      initialTime: initial,
+      builder: (context, child) {
+        return Theme(
+          data: Theme.of(context).copyWith(
+            colorScheme: ColorScheme.light(
+              primary: Theme.of(context).colorScheme.primary,
+              onPrimary: Colors.white,
+              surface: Colors.white,
+              onSurface: Colors.black,
+            ),
+          ),
+          child: child!,
+        );
+      },
     );
+
+    if (picked != null) {
+      setState(() => selectedTime = picked);
+    }
   }
 
   Future<void> _submitBooking() async {
@@ -81,10 +83,13 @@ class _BookAppointmentScreenState extends ConsumerState<BookAppointmentScreen> {
       return;
     }
 
-    final timeParts = selectedTime!.split(':');
-    final hour = int.tryParse(timeParts.first) ?? 0;
-    final minute = int.tryParse(timeParts.length > 1 ? timeParts[1] : '0') ?? 0;
-    final fechaHoraInicio = DateTime(selectedDate!.year, selectedDate!.month, selectedDate!.day, hour, minute);
+    final fechaHoraInicio = DateTime(
+      selectedDate!.year,
+      selectedDate!.month,
+      selectedDate!.day,
+      selectedTime!.hour,
+      selectedTime!.minute,
+    );
 
     final request = CreateAppointmentRequest(
       peluqueroId: selectedHairstylist!.id,
@@ -134,37 +139,62 @@ class _BookAppointmentScreenState extends ConsumerState<BookAppointmentScreen> {
   Widget build(BuildContext context) {
     final servicesAsync = ref.watch(serviceProviderProvider);
     return Scaffold(
-      appBar: PremiumAppBarWithIcon(
-        icon: Icons.calendar_today,
-        title: 'Agendar Cita',
-        showBack: true,
-        onBackPressed: () {
-          if (GoRouter.of(context).canPop()) {
-            context.pop();
-          } else {
-            context.go('/home');
-          }
-        },
+      backgroundColor: const Color(0xFF0E0E10),
+      appBar: PreferredSize(
+        preferredSize: const Size.fromHeight(kToolbarHeight),
+        child: Container(
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              colors: [
+                Colors.black.withValues(alpha: 0.95),
+                Colors.black.withValues(alpha: 0.85),
+              ],
+            ),
+            border: Border(
+              bottom: BorderSide(color: Colors.white.withValues(alpha: 0.08)),
+            ),
+          ),
+          child: AppBar(
+            backgroundColor: Colors.transparent,
+            elevation: 0,
+            leading: IconButton(
+              icon: const Icon(Icons.arrow_back, color: Colors.white),
+              onPressed: () {
+                if (GoRouter.of(context).canPop()) {
+                  context.pop();
+                } else {
+                  context.go('/home');
+                }
+              },
+            ),
+            title: Row(
+              children: [
+                Container(
+                  padding: const EdgeInsets.all(8),
+                  decoration: BoxDecoration(
+                    color: Colors.white.withValues(alpha: 0.08),
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  child: const Icon(Icons.calendar_today, color: Color(0xFFD4AF37)),
+                ),
+                const SizedBox(width: 12),
+                const Text(
+                  'Agendar Cita',
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontWeight: FontWeight.w800,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
       ),
       body: Stack(
         children: [
-          Container(
-            height: 180,
-            decoration: BoxDecoration(
-              gradient: LinearGradient(
-                colors: [
-                  Theme.of(context).colorScheme.primary.withValues(alpha: 0.12),
-                  Theme.of(context).colorScheme.secondary.withValues(alpha: 0.12),
-                  Theme.of(context).colorScheme.tertiary.withValues(alpha: 0.1),
-                ],
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-              ),
-            ),
-          ),
           SingleChildScrollView(
             child: Padding(
-              padding: const EdgeInsets.only(top: 12),
+              padding: const EdgeInsets.only(top: 16),
               child: Column(
                 children: [
                   Container(
@@ -173,63 +203,62 @@ class _BookAppointmentScreenState extends ConsumerState<BookAppointmentScreen> {
                     decoration: BoxDecoration(
                       gradient: LinearGradient(
                         colors: [
-                          Theme.of(context).colorScheme.secondary.withValues(alpha: 0.85),
-                          Theme.of(context).colorScheme.primary.withValues(alpha: 0.85),
+                          Colors.white.withValues(alpha: 0.08),
+                          Colors.white.withValues(alpha: 0.04),
                         ],
                       ),
                       borderRadius: BorderRadius.circular(18),
-                      boxShadow: [BoxShadow(
-                        color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.25),
-                        blurRadius: 12,
-                        offset: const Offset(0, 6),
-                      )],
+                      border: Border.all(color: const Color(0xFFD4AF37).withValues(alpha: 0.3)),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withValues(alpha: 0.4),
+                          blurRadius: 16,
+                          offset: const Offset(0, 8),
+                        ),
+                      ],
                     ),
-                    child: Stack(
+                    child: Row(
                       children: [
-                        Positioned(
-                          right: -15,
-                          top: -15,
-                          child: Container(width: 70, height: 70, decoration: BoxDecoration(
-                            shape: BoxShape.circle,
-                            color: Colors.white.withValues(alpha: 0.1),
-                          )),
-                        ),
-                        Positioned(
-                          left: -10,
-                          bottom: -10,
-                          child: Container(width: 60, height: 60, decoration: BoxDecoration(
-                            shape: BoxShape.circle,
-                            color: Colors.white.withValues(alpha: 0.08),
-                          )),
-                        ),
-                        Row(
-                          children: [
-                            Container(
-                              padding: const EdgeInsets.all(14),
-                              decoration: BoxDecoration(
-                                color: Colors.white.withValues(alpha: 0.25),
-                                borderRadius: BorderRadius.circular(14),
+                        Container(
+                          padding: const EdgeInsets.all(14),
+                          decoration: BoxDecoration(
+                            color: const Color(0xFFD4AF37),
+                            borderRadius: BorderRadius.circular(14),
+                            boxShadow: [
+                              BoxShadow(
+                                color: const Color(0xFFD4AF37).withValues(alpha: 0.4),
+                                blurRadius: 12,
+                                offset: const Offset(0, 4),
                               ),
-                              child: const Icon(Icons.edit_calendar, size: 26, color: Colors.white),
-                            ),
-                            const SizedBox(width: 16),
-                            Expanded(
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  const Text('Nueva Cita', style: TextStyle(
-                                    color: Colors.white, fontSize: 24, fontWeight: FontWeight.bold, letterSpacing: 0.5,
-                                  )),
-                                  const SizedBox(height: 6),
-                                  Text('Completa los detalles de tu cita', style: TextStyle(
-                                    color: Colors.white.withValues(alpha: 0.95),
-                                    fontSize: 14,
-                                    fontWeight: FontWeight.w500,
-                                  )),
-                                ],
+                            ],
+                          ),
+                          child: const Icon(Icons.edit_calendar, size: 26, color: Colors.black),
+                        ),
+                        const SizedBox(width: 16),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              const Text(
+                                'Nueva Cita',
+                                style: TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 22,
+                                  fontWeight: FontWeight.w800,
+                                  letterSpacing: 0.3,
+                                ),
                               ),
-                            ),
-                          ],
+                              const SizedBox(height: 6),
+                              Text(
+                                'Completa los detalles de tu cita',
+                                style: TextStyle(
+                                  color: Colors.white.withValues(alpha: 0.7),
+                                  fontSize: 13,
+                                  fontWeight: FontWeight.w500,
+                                ),
+                              ),
+                            ],
+                          ),
                         ),
                       ],
                     ),
@@ -239,50 +268,6 @@ class _BookAppointmentScreenState extends ConsumerState<BookAppointmentScreen> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                          Container(
-                            padding: const EdgeInsets.all(16),
-                            decoration: BoxDecoration(
-                              color: Colors.blue.shade50,
-                              borderRadius: BorderRadius.circular(14),
-                              border: Border.all(color: Colors.grey.shade200),
-                            ),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Row(
-                                  children: [
-                                    Container(
-                                      padding: const EdgeInsets.all(10),
-                                      decoration: BoxDecoration(
-                                        shape: BoxShape.circle,
-                                        color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.2),
-                                      ),
-                                      child: Icon(
-                                        Icons.info_outline,
-                                        size: 20,
-                                        color: Theme.of(context).colorScheme.primary,
-                                      ),
-                                    ),
-                                    const SizedBox(width: 12),
-                                    Text(
-                                      'Nueva Cita',
-                                      style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                                        fontWeight: FontWeight.bold,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                                const SizedBox(height: 12),
-                                Text(
-                                  'Completa los detalles para agendar una nueva cita',
-                                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                                    color: Colors.grey.shade700,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                          const SizedBox(height: 24),
                           _SectionCard(
                           icon: Icons.content_cut,
                           title: 'Servicio',
@@ -290,21 +275,25 @@ class _BookAppointmentScreenState extends ConsumerState<BookAppointmentScreen> {
                             data: (services) => Container(
                               padding: const EdgeInsets.symmetric(horizontal: 12),
                               decoration: BoxDecoration(
-                                color: Colors.white.withValues(alpha: 0.6),
+                                color: Colors.white.withValues(alpha: 0.12),
                                 borderRadius: BorderRadius.circular(14),
-                                border: Border.all(color: Colors.grey.shade200),
+                                border: Border.all(color: const Color(0xFFD4AF37).withValues(alpha: 0.3)),
                               ),
                               child: DropdownButton<Servicio>(
                                 isExpanded: true,
                                 underline: const SizedBox(),
-                                hint: const Text('Selecciona un servicio'),
+                                dropdownColor: const Color(0xFF1A1A1E),
+                                hint: const Text('Selecciona un servicio', style: TextStyle(color: Colors.white70)),
                                 value: selectedService,
+                                style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w600),
                                 items: services.map((s) => DropdownMenuItem(
                                   value: s,
                                   child: Row(
                                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                    children: [Expanded(child: Text(s.nombre, style: const TextStyle(fontWeight: FontWeight.w600))),
-                                      Text('\$${s.precio}', style: TextStyle(color: Theme.of(context).colorScheme.secondary, fontWeight: FontWeight.bold, fontSize: 13))],
+                                    children: [
+                                      Expanded(child: Text(s.nombre, style: const TextStyle(fontWeight: FontWeight.w600, color: Colors.white))),
+                                      Text('\$${s.precio}', style: const TextStyle(color: Color(0xFFD4AF37), fontWeight: FontWeight.bold, fontSize: 13)),
+                                    ],
                                   ),
                                 )).toList(),
                                 onChanged: (value) => setState(() {
@@ -327,25 +316,28 @@ class _BookAppointmentScreenState extends ConsumerState<BookAppointmentScreen> {
                               data: (hairstylists) => Container(
                                 padding: const EdgeInsets.symmetric(horizontal: 12),
                                 decoration: BoxDecoration(
-                                  color: Colors.white.withValues(alpha: 0.6),
+                                  color: Colors.white.withValues(alpha: 0.12),
                                   borderRadius: BorderRadius.circular(14),
-                                  border: Border.all(color: Colors.grey.shade200),
+                                  border: Border.all(color: const Color(0xFFD4AF37).withValues(alpha: 0.3)),
                                 ),
                                 child: DropdownButton<Peluquero>(
                                   isExpanded: true,
                                   underline: const SizedBox(),
-                                  hint: const Text('Selecciona un peluquero'),
+                                  dropdownColor: const Color(0xFF1A1A1E),
+                                  hint: const Text('Selecciona un peluquero', style: TextStyle(color: Colors.white70)),
                                   value: selectedHairstylist,
+                                  style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w600),
                                   items: hairstylists.map((h) => DropdownMenuItem(
                                     value: h,
                                     child: Row(
                                       children: [
-                                        CircleAvatar(radius: 18,
-                                          backgroundColor: Theme.of(context).colorScheme.secondary.withValues(alpha: 0.25),
-                                          child: Icon(Icons.person, color: Theme.of(context).colorScheme.primary, size: 20),
+                                        CircleAvatar(
+                                          radius: 18,
+                                          backgroundColor: const Color(0xFFD4AF37).withValues(alpha: 0.25),
+                                          child: const Icon(Icons.person, color: Color(0xFFD4AF37), size: 20),
                                         ),
                                         const SizedBox(width: 12),
-                                        Text(h.nombre, style: const TextStyle(fontWeight: FontWeight.w600)),
+                                        Text(h.nombre, style: const TextStyle(fontWeight: FontWeight.w600, color: Colors.white)),
                                       ],
                                     ),
                                   )).toList(),
@@ -357,9 +349,18 @@ class _BookAppointmentScreenState extends ConsumerState<BookAppointmentScreen> {
                             );
                           }) : Container(
                             padding: const EdgeInsets.all(14),
-                            decoration: BoxDecoration(color: Colors.orange.shade50, borderRadius: BorderRadius.circular(12), border: Border.all(color: Colors.orange.shade200)),
-                            child: Row(children: [Icon(Icons.info_outline, color: Colors.orange.shade700), const SizedBox(width: 12),
-                              const Expanded(child: Text('Selecciona un servicio primero', style: TextStyle(fontSize: 13, fontWeight: FontWeight.w500)))]),
+                            decoration: BoxDecoration(
+                              color: Colors.white.withValues(alpha: 0.06),
+                              borderRadius: BorderRadius.circular(12),
+                              border: Border.all(color: const Color(0xFFD4AF37).withValues(alpha: 0.2)),
+                            ),
+                            child: Row(
+                              children: [
+                                Icon(Icons.info_outline, color: const Color(0xFFD4AF37).withValues(alpha: 0.7)),
+                                const SizedBox(width: 12),
+                                const Expanded(child: Text('Selecciona un servicio primero', style: TextStyle(fontSize: 13, fontWeight: FontWeight.w500, color: Colors.white70))),
+                              ],
+                            ),
                           ),
                         ),
                         const SizedBox(height: 20),
@@ -371,13 +372,13 @@ class _BookAppointmentScreenState extends ConsumerState<BookAppointmentScreen> {
                               child: InkWell(onTap: () => _selectDate(context),
                                 borderRadius: BorderRadius.circular(12),
                                 child: Container(padding: const EdgeInsets.all(14), decoration: BoxDecoration(
-                                  color: Colors.white.withValues(alpha: 0.6),
+                                  color: Colors.white.withValues(alpha: 0.12),
                                   borderRadius: BorderRadius.circular(14),
-                                  border: Border.all(color: Colors.grey.shade200),
+                                  border: Border.all(color: const Color(0xFFD4AF37).withValues(alpha: 0.3)),
                                 ), child: Text(selectedDate == null ? 'Selecciona' : '${selectedDate!.day}/${selectedDate!.month}/${selectedDate!.year}', style: TextStyle(
                                   fontSize: 15,
                                   fontWeight: selectedDate != null ? FontWeight.w700 : FontWeight.w500,
-                                  color: selectedDate != null ? Theme.of(context).colorScheme.primary : Colors.grey[600],
+                                  color: selectedDate != null ? const Color(0xFFD4AF37) : Colors.white60,
                                 )))),
                             )),
                             const SizedBox(width: 12),
@@ -387,13 +388,13 @@ class _BookAppointmentScreenState extends ConsumerState<BookAppointmentScreen> {
                               child: InkWell(onTap: _selectTime,
                                 borderRadius: BorderRadius.circular(12),
                                 child: Container(padding: const EdgeInsets.all(14), decoration: BoxDecoration(
-                                  color: Colors.white.withValues(alpha: 0.6),
+                                  color: Colors.white.withValues(alpha: 0.12),
                                   borderRadius: BorderRadius.circular(14),
-                                  border: Border.all(color: Colors.grey.shade200),
-                                ), child: Text(selectedTime ?? 'Selecciona', style: TextStyle(
+                                  border: Border.all(color: const Color(0xFFD4AF37).withValues(alpha: 0.3)),
+                                ), child: Text(selectedTime != null ? _formatTime(selectedTime!) : 'Selecciona', style: TextStyle(
                                   fontSize: 15,
                                   fontWeight: selectedTime != null ? FontWeight.w700 : FontWeight.w500,
-                                  color: selectedTime != null ? Theme.of(context).colorScheme.primary : Colors.grey[600],
+                                  color: selectedTime != null ? const Color(0xFFD4AF37) : Colors.white60,
                                 )))),
                             )),
                           ],
@@ -404,16 +405,22 @@ class _BookAppointmentScreenState extends ConsumerState<BookAppointmentScreen> {
                           title: 'Notas (opcional)',
                           child: Container(
                             decoration: BoxDecoration(
-                              color: Colors.white.withValues(alpha: 0.6),
+                              color: Colors.white.withValues(alpha: 0.12),
                               borderRadius: BorderRadius.circular(14),
-                              border: Border.all(color: Colors.grey.shade200),
+                              border: Border.all(color: const Color(0xFFD4AF37).withValues(alpha: 0.3)),
                             ),
-                            child: TextField(controller: _notesController, maxLines: 3, decoration: const InputDecoration(
-                              hintText: 'Comentarios o preferencias especiales',
-                              filled: false,
-                              border: InputBorder.none,
-                              contentPadding: EdgeInsets.all(14),
-                            )),
+                            child: TextField(
+                              controller: _notesController,
+                              maxLines: 3,
+                              style: const TextStyle(color: Colors.white),
+                              decoration: const InputDecoration(
+                                hintText: 'Comentarios o preferencias especiales',
+                                hintStyle: TextStyle(color: Colors.white60),
+                                filled: false,
+                                border: InputBorder.none,
+                                contentPadding: EdgeInsets.all(14),
+                              ),
+                            ),
                           ),
                         ),
                         const SizedBox(height: 32),
@@ -423,18 +430,20 @@ class _BookAppointmentScreenState extends ConsumerState<BookAppointmentScreen> {
                           child: ElevatedButton(
                             onPressed: _submitBooking,
                             style: ElevatedButton.styleFrom(
-                              backgroundColor: Theme.of(context).colorScheme.secondary,
-                              elevation: 4,
+                              backgroundColor: const Color(0xFFD4AF37),
+                              foregroundColor: Colors.black,
+                              elevation: 8,
+                              shadowColor: const Color(0xFFD4AF37).withValues(alpha: 0.5),
                               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
                             ),
-                            child: Row(mainAxisAlignment: MainAxisAlignment.center, children: [
-                              Icon(Icons.check_circle_outline, color: Theme.of(context).colorScheme.onSecondary, size: 22),
-                              const SizedBox(width: 10),
+                            child: const Row(mainAxisAlignment: MainAxisAlignment.center, children: [
+                              Icon(Icons.check_circle_outline, color: Colors.black, size: 22),
+                              SizedBox(width: 10),
                               Text('CONFIRMAR CITA', style: TextStyle(
                                 fontSize: 16,
-                                fontWeight: FontWeight.bold,
+                                fontWeight: FontWeight.w800,
                                 letterSpacing: 0.5,
-                                color: Theme.of(context).colorScheme.onSecondary,
+                                color: Colors.black,
                               )),
                             ]),
                           ),
@@ -451,6 +460,13 @@ class _BookAppointmentScreenState extends ConsumerState<BookAppointmentScreen> {
       ),
     );
   }
+
+    String _formatTime(TimeOfDay time) {
+      final hour = time.hourOfPeriod == 0 ? 12 : time.hourOfPeriod;
+      final minute = time.minute.toString().padLeft(2, '0');
+      final period = time.period == DayPeriod.am ? 'AM' : 'PM';
+      return '$hour:$minute $period';
+    }
 }
 
 class _SectionCard extends StatelessWidget {
@@ -465,8 +481,10 @@ class _SectionCard extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Row(
-          children: [Icon(icon, color: Theme.of(context).colorScheme.primary, size: 20), const SizedBox(width: 8),
-            Text(title, style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold)),
+          children: [
+            Icon(icon, color: const Color(0xFFD4AF37), size: 20),
+            const SizedBox(width: 8),
+            Text(title, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w700, fontSize: 15)),
           ],
         ),
         const SizedBox(height: 12),

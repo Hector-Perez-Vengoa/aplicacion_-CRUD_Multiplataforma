@@ -16,89 +16,94 @@ class HomeScreen extends ConsumerWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           // Header con bienvenida y accent circles
-          Stack(
-            children: [
-              // Background gradient
-              Container(
-                width: double.infinity,
-                height: 260,
-                decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
-                    colors: [
-                      Theme.of(context).colorScheme.primary,
-                      Theme.of(context).colorScheme.secondary.withValues(alpha: 0.7),
-                    ],
-                  ),
+          Container(
+            width: double.infinity,
+            height: 280,
+            decoration: BoxDecoration(
+              image: const DecorationImage(
+                image: NetworkImage('https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=1400&q=80'),
+                fit: BoxFit.cover,
+              ),
+              gradient: LinearGradient(
+                colors: [Colors.black.withValues(alpha: 0.9), Colors.black.withValues(alpha: 0.6)],
+                begin: Alignment.topCenter,
+                end: Alignment.bottomCenter,
+              ),
+            ),
+            child: Container(
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  begin: Alignment.topCenter,
+                  end: Alignment.bottomCenter,
+                  colors: [
+                    Colors.black.withValues(alpha: 0.85),
+                    Colors.black.withValues(alpha: 0.95),
+                  ],
                 ),
               ),
-              // Accent circles
-              Positioned(
-                top: -40,
-                right: -40,
-                child: Container(
-                  width: 200,
-                  height: 200,
-                  decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    color: Colors.white.withValues(alpha: 0.08),
-                  ),
-                ),
-              ),
-              Positioned(
-                bottom: 40,
-                left: -50,
-                child: Container(
-                  width: 150,
-                  height: 150,
-                  decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    color: Colors.white.withValues(alpha: 0.06),
-                  ),
-                ),
-              ),
-              // Content
-              Padding(
+              child: Padding(
                 padding: const EdgeInsets.fromLTRB(24, 32, 24, 32),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(
-                      'Hola, ${authState.usuario?.nombre ?? 'Cliente'}',
-                      style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                            color: Colors.white,
-                            fontWeight: FontWeight.bold,
-                          ),
-                    ),
-                    const SizedBox(height: 8),
-                    Text(
-                      '¿Listo para tu próxima transformación?',
-                      style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                            color: Colors.white.withValues(alpha: 0.9),
-                          ),
-                    ),
-                    const SizedBox(height: 24),
-                    // Quick stats
                     Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        _StatBadge(
-                          icon: Icons.cut,
-                          label: 'Servicios',
-                          onTap: () => context.go('/services'),
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              'Hola, ${authState.usuario?.nombre ?? 'Cliente'}',
+                              style: const TextStyle(
+                                color: Colors.white,
+                                fontWeight: FontWeight.w800,
+                                fontSize: 24,
+                              ),
+                            ),
+                            const SizedBox(height: 6),
+                            Text(
+                              'Cortes premium y agenda impecable',
+                              style: TextStyle(
+                                color: Colors.white.withValues(alpha: 0.75),
+                                fontSize: 14,
+                              ),
+                            ),
+                          ],
                         ),
-                        const SizedBox(width: 16),
-                        _StatBadge(
-                          icon: Icons.calendar_today,
-                          label: 'Mis Citas',
-                          onTap: () => context.go('/appointments'),
+                        Container(
+                          padding: const EdgeInsets.all(12),
+                          decoration: BoxDecoration(
+                            color: Colors.white.withValues(alpha: 0.08),
+                            borderRadius: BorderRadius.circular(14),
+                            border: Border.all(color: Colors.white.withValues(alpha: 0.12)),
+                          ),
+                          child: const Icon(Icons.content_cut, color: Colors.white),
                         ),
                       ],
+                    ),
+                    const SizedBox(height: 12),
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+                      decoration: BoxDecoration(
+                        color: Colors.white.withValues(alpha: 0.08),
+                        borderRadius: BorderRadius.circular(12),
+                        border: Border.all(color: Colors.white.withValues(alpha: 0.12)),
+                      ),
+                      child: Row(
+                        children: const [
+                          Icon(Icons.event_available, color: Color(0xFFD4AF37)),
+                          SizedBox(width: 8),
+                          Text(
+                            'Agenda en un toque',
+                            style: TextStyle(color: Colors.white, fontWeight: FontWeight.w700),
+                          ),
+                        ],
+                      ),
                     ),
                   ],
                 ),
               ),
-            ],
+            ),
           ),
 
           const SizedBox(height: 24),
@@ -116,16 +121,17 @@ class HomeScreen extends ConsumerWidget {
                   'Agendar Cita',
                   style: TextStyle(
                     fontSize: 16,
-                    fontWeight: FontWeight.w600,
+                    fontWeight: FontWeight.w800,
+                    letterSpacing: 0.3,
                   ),
                 ),
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: Theme.of(context).colorScheme.secondary,
-                  foregroundColor: Colors.white,
-                  elevation: 4,
-                  shadowColor: Theme.of(context).colorScheme.secondary.withValues(alpha: 0.5),
+                  backgroundColor: const Color(0xFFD4AF37),
+                  foregroundColor: Colors.black,
+                  elevation: 8,
+                  shadowColor: const Color(0xFFD4AF37).withValues(alpha: 0.5),
                   shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
+                    borderRadius: BorderRadius.circular(14),
                   ),
                 ),
               ),
@@ -141,18 +147,16 @@ class HomeScreen extends ConsumerWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Row(
-                  children: [
-                    Icon(
-                      Icons.upcoming,
-                      color: Theme.of(context).colorScheme.primary,
-                      size: 24,
-                    ),
-                    const SizedBox(width: 8),
+                  children: const [
+                    Icon(Icons.upcoming, color: Color(0xFFD4AF37), size: 24),
+                    SizedBox(width: 8),
                     Text(
                       'Próximas Citas',
-                      style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                            fontWeight: FontWeight.bold,
-                          ),
+                      style: TextStyle(
+                        fontWeight: FontWeight.w800,
+                        fontSize: 20,
+                        color: Colors.white,
+                      ),
                     ),
                   ],
                 ),
@@ -175,7 +179,6 @@ class _AppointmentsSection extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final appointmentsAsync = ref.watch(appointmentProviderProvider);
-    final colorScheme = Theme.of(context).colorScheme;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -184,55 +187,34 @@ class _AppointmentsSection extends ConsumerWidget {
           data: (appointments) {
             if (appointments.isEmpty) {
               return Container(
+                padding: const EdgeInsets.symmetric(vertical: 36, horizontal: 24),
                 decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
-                    colors: [
-                      Colors.blue.withValues(alpha: 0.08),
-                      Colors.indigo.withValues(alpha: 0.04),
-                    ],
-                  ),
-                  borderRadius: BorderRadius.circular(16),
-                  border: Border.all(
-                    color: Colors.blue.withValues(alpha: 0.2),
-                  ),
+                  borderRadius: BorderRadius.circular(18),
+                  color: Colors.white.withValues(alpha: 0.04),
+                  border: Border.all(color: Colors.white.withValues(alpha: 0.08)),
                 ),
-                padding: const EdgeInsets.symmetric(vertical: 40, horizontal: 24),
-                child: Center(
-                  child: Column(
-                    children: [
-                      Container(
-                        padding: const EdgeInsets.all(16),
-                        decoration: BoxDecoration(
-                          color: Colors.white.withValues(alpha: 0.6),
-                          shape: BoxShape.circle,
-                        ),
-                        child: Icon(
-                          Icons.calendar_month_outlined,
-                          size: 48,
-                          color: colorScheme.primary,
-                        ),
+                child: Column(
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.all(14),
+                      decoration: BoxDecoration(
+                        color: Colors.white.withValues(alpha: 0.08),
+                        shape: BoxShape.circle,
+                        border: Border.all(color: Colors.white.withValues(alpha: 0.12)),
                       ),
-                      const SizedBox(height: 12),
-                      Text(
-                        'Sin citas próximas',
-                        style: TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.w600,
-                          color: Colors.grey[700],
-                        ),
-                      ),
-                      const SizedBox(height: 4),
-                      Text(
-                        'Agenda tu primera cita',
-                        style: TextStyle(
-                          fontSize: 14,
-                          color: Colors.grey[600],
-                        ),
-                      ),
-                    ],
-                  ),
+                      child: const Icon(Icons.calendar_month_outlined, color: Color(0xFFD4AF37), size: 32),
+                    ),
+                    const SizedBox(height: 12),
+                    const Text(
+                      'Sin citas próximas',
+                      style: TextStyle(color: Colors.white, fontWeight: FontWeight.w700),
+                    ),
+                    const SizedBox(height: 6),
+                    Text(
+                      'Agenda tu primera cita',
+                      style: TextStyle(color: Colors.white.withValues(alpha: 0.7)),
+                    ),
+                  ],
                 ),
               );
             }
@@ -244,21 +226,36 @@ class _AppointmentsSection extends ConsumerWidget {
               children: proximasCitas.map((cita) {
                 return Container(
                   margin: const EdgeInsets.only(bottom: 12),
-                  padding: const EdgeInsets.all(12),
+                  padding: const EdgeInsets.all(14),
                   decoration: BoxDecoration(
-                    color: Colors.grey.shade50,
-                    borderRadius: BorderRadius.circular(12),
-                    border: Border.all(color: Colors.grey.shade200),
+                    borderRadius: BorderRadius.circular(14),
+                    gradient: LinearGradient(
+                      begin: Alignment.centerLeft,
+                      end: Alignment.centerRight,
+                      colors: [
+                        Colors.white.withValues(alpha: 0.06),
+                        Colors.white.withValues(alpha: 0.03),
+                      ],
+                    ),
+                    border: Border.all(color: Colors.white.withValues(alpha: 0.08)),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withValues(alpha: 0.35),
+                        blurRadius: 12,
+                        offset: const Offset(0, 8),
+                      ),
+                    ],
                   ),
                   child: Row(
                     children: [
                       Container(
-                        padding: const EdgeInsets.all(8),
+                        padding: const EdgeInsets.all(10),
                         decoration: BoxDecoration(
-                          color: colorScheme.secondary.withValues(alpha: 0.2),
-                          borderRadius: BorderRadius.circular(8),
+                          color: Colors.white.withValues(alpha: 0.08),
+                          borderRadius: BorderRadius.circular(10),
+                          border: Border.all(color: Colors.white.withValues(alpha: 0.12)),
                         ),
-                        child: Icon(Icons.calendar_today, size: 18, color: colorScheme.primary),
+                        child: const Icon(Icons.calendar_today, size: 18, color: Color(0xFFD4AF37)),
                       ),
                       const SizedBox(width: 12),
                       Expanded(
@@ -267,28 +264,28 @@ class _AppointmentsSection extends ConsumerWidget {
                           children: [
                             Text(
                               cita.servicio,
-                              style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
+                              style: const TextStyle(fontWeight: FontWeight.w800, fontSize: 14, color: Colors.white),
                             ),
                             const SizedBox(height: 2),
                             Text(
-                              '${cita.fechaInicio.day}/${cita.fechaInicio.month} - ${cita.fechaInicio.hour}:${cita.fechaInicio.minute.toString().padLeft(2, '0')}',
-                              style: TextStyle(fontSize: 12, color: Colors.grey[600]),
+                              '${cita.fechaInicio.day.toString().padLeft(2, '0')}/${cita.fechaInicio.month.toString().padLeft(2, '0')} - ${cita.fechaInicio.hour.toString().padLeft(2, '0')}:${cita.fechaInicio.minute.toString().padLeft(2, '0')}',
+                              style: TextStyle(fontSize: 12, color: Colors.white.withValues(alpha: 0.7)),
                             ),
                           ],
                         ),
                       ),
                       Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
                         decoration: BoxDecoration(
-                          color: _getStatusColor(cita.estado).withValues(alpha: 0.15),
-                          borderRadius: BorderRadius.circular(6),
+                          color: _getStatusColor(cita.estado).withValues(alpha: 0.25),
+                          borderRadius: BorderRadius.circular(10),
                         ),
                         child: Text(
                           cita.estado,
-                          style: TextStyle(
+                          style: const TextStyle(
                             fontSize: 11,
                             fontWeight: FontWeight.bold,
-                            color: _getStatusColor(cita.estado),
+                            color: Colors.white,
                           ),
                         ),
                       ),
@@ -326,48 +323,3 @@ class _AppointmentsSection extends ConsumerWidget {
   }
 }
 
-// Widget para badges de estadísticas rápidas
-class _StatBadge extends StatelessWidget {
-  final IconData icon;
-  final String label;
-  final VoidCallback onTap;
-
-  const _StatBadge({
-    required this.icon,
-    required this.label,
-    required this.onTap,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Material(
-      color: Colors.transparent,
-      child: InkWell(
-        onTap: onTap,
-        borderRadius: BorderRadius.circular(12),
-        child: Container(
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-          decoration: BoxDecoration(
-            color: Colors.white.withValues(alpha: 0.15),
-            border: Border.all(color: Colors.white.withValues(alpha: 0.3)),
-            borderRadius: BorderRadius.circular(12),
-          ),
-          child: Row(
-            children: [
-              Icon(icon, color: Colors.white, size: 20),
-              const SizedBox(width: 8),
-              Text(
-                label,
-                style: const TextStyle(
-                  color: Colors.white,
-                  fontWeight: FontWeight.w600,
-                  fontSize: 13,
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-}

@@ -60,25 +60,35 @@ class AppRouter {
 
       // Rutas cliente con Shell (barra de navegación)
       ShellRoute(
-        builder: (context, state, child) {
-          return ClientHomeScreen(child: child);
+        pageBuilder: (context, state, child) {
+          return NoTransitionPage(
+            child: ClientHomeScreen(child: child),
+          );
         },
         routes: [
           GoRoute(
             path: AppRoutes.clientHome,
-            builder: (context, state) {
-              return const HomeScreen();
+            pageBuilder: (context, state) {
+              return const NoTransitionPage(
+                child: HomeScreen(),
+              );
             },
           ),
           GoRoute(
             path: AppRoutes.services,
-            builder: (context, state) {
-              return const ServicesScreen();
+            pageBuilder: (context, state) {
+              return const NoTransitionPage(
+                child: ServicesScreen(),
+              );
             },
           ),
           GoRoute(
             path: AppRoutes.appointments,
-            builder: (context, state) => const AppointmentsScreen(),
+            pageBuilder: (context, state) {
+              return const NoTransitionPage(
+                child: AppointmentsScreen(),
+              );
+            },
           ),
         ],
       ),

@@ -21,7 +21,10 @@ class MyApp extends StatelessWidget {
     return MaterialApp.router(
       title: 'Peluquería App',
       debugShowCheckedModeBanner: false,
-      theme: AppTheme.lightTheme,
+      theme: AppTheme.lightTheme.copyWith(
+        scaffoldBackgroundColor: const Color(0xFF0E0E10),
+        canvasColor: const Color(0xFF0E0E10),
+      ),
       routerConfig: AppRouter.router,
     );
   }

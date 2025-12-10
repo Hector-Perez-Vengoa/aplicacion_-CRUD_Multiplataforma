@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../../core/widgets/floating_notification.dart';
-import '../../../core/widgets/premium_app_bar.dart';
 import '../../../domain/models/cita.dart';
 import '../application/appointment_provider.dart';
 import '../application/service_provider.dart';
@@ -208,319 +207,371 @@ class _EditAppointmentScreenState extends ConsumerState<EditAppointmentScreen> {
     final isLoading = ref.watch(updateAppointmentNotifierProvider).isLoading;
 
     return Scaffold(
-      appBar: PremiumAppBarWithIcon(
-        icon: Icons.edit_calendar,
-        title: 'Editar Cita',
-      ),
-      body: servicesAsync.when(
-        data: (services) {
-          return hairstylistsAsync.when(
-            data: (hairstylists) {
-              return Stack(
-                children: [
-                  // Fondo decorativo
-                  Container(
-                    height: 180,
-                    decoration: BoxDecoration(
-                      gradient: LinearGradient(
-                        colors: [
-                          Theme.of(context).colorScheme.primary.withValues(alpha: 0.12),
-                          Theme.of(context).colorScheme.secondary.withValues(alpha: 0.12),
-                          Theme.of(context).colorScheme.tertiary.withValues(alpha: 0.1),
-                        ],
-                        begin: Alignment.topLeft,
-                        end: Alignment.bottomRight,
-                      ),
-                    ),
+      backgroundColor: const Color(0xFF0E0E10),
+      appBar: PreferredSize(
+        preferredSize: const Size.fromHeight(kToolbarHeight),
+        child: Container(
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              colors: [
+                Colors.black.withValues(alpha: 0.95),
+                Colors.black.withValues(alpha: 0.85),
+              ],
+            ),
+            border: Border(
+              bottom: BorderSide(color: Colors.white.withValues(alpha: 0.08)),
+            ),
+          ),
+          child: AppBar(
+            backgroundColor: Colors.transparent,
+            elevation: 0,
+            leading: IconButton(
+              icon: const Icon(Icons.arrow_back, color: Colors.white),
+              onPressed: () => Navigator.of(context).pop(),
+            ),
+            title: Row(
+              children: [
+                Container(
+                  padding: const EdgeInsets.all(8),
+                  decoration: BoxDecoration(
+                    color: Colors.white.withValues(alpha: 0.08),
+                    borderRadius: BorderRadius.circular(10),
                   ),
-                  SingleChildScrollView(
-                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 24),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        // Info de la cita actual - Premium container
-                        Container(
-                          padding: const EdgeInsets.all(16),
-                          decoration: BoxDecoration(
-                            gradient: LinearGradient(
-                              colors: [
-                                Theme.of(context).colorScheme.tertiary.withValues(alpha: 0.12),
-                                Theme.of(context).colorScheme.secondary.withValues(alpha: 0.12),
-                              ],
-                            ),
-                            borderRadius: BorderRadius.circular(14),
-                            border: Border.all(color: Colors.grey.shade200),
-                          ),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Row(
-                                children: [
-                                  Container(
-                                    padding: const EdgeInsets.all(10),
-                                    decoration: BoxDecoration(
-                                      shape: BoxShape.circle,
-                                      color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.2),
-                                    ),
-                                    child: Icon(
-                                      Icons.info_outline,
-                                      size: 20,
-                                      color: Theme.of(context).colorScheme.primary,
-                                    ),
-                                  ),
-                                  const SizedBox(width: 12),
-                                  Text(
-                                    'Cita Actual',
-                                    style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                                      fontWeight: FontWeight.bold,
-                                    ),
-                                  ),
+                  child: const Icon(Icons.edit_calendar, color: Color(0xFFD4AF37)),
+                ),
+                const SizedBox(width: 12),
+                const Text(
+                  'Editar Cita',
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontWeight: FontWeight.w800,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+      body: Container(
+        color: const Color(0xFF0E0E10),
+        child: servicesAsync.when(
+          data: (services) {
+            return hairstylistsAsync.when(
+              data: (hairstylists) {
+                return Stack(
+                  children: [
+                    SingleChildScrollView(
+                      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 24),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          // Info de la cita actual
+                          Container(
+                            padding: const EdgeInsets.all(18),
+                            decoration: BoxDecoration(
+                              gradient: LinearGradient(
+                                colors: [
+                                  Colors.white.withValues(alpha: 0.08),
+                                  Colors.white.withValues(alpha: 0.04),
                                 ],
                               ),
-                              const SizedBox(height: 12),
-                              _InfoRow(label: 'Estado:', value: widget.cita.estado),
-                              _InfoRow(
-                                label: 'Fecha/Hora:',
-                                value: _formatDateTime(widget.cita.fechaInicio),
+                              borderRadius: BorderRadius.circular(16),
+                              border: Border.all(color: const Color(0xFFD4AF37).withValues(alpha: 0.3)),
+                              boxShadow: [
+                                BoxShadow(
+                                  color: Colors.black.withValues(alpha: 0.4),
+                                  blurRadius: 14,
+                                  offset: const Offset(0, 8),
+                                ),
+                              ],
+                            ),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Row(
+                                  children: [
+                                    Container(
+                                      padding: const EdgeInsets.all(10),
+                                      decoration: BoxDecoration(
+                                        shape: BoxShape.circle,
+                                        color: const Color(0xFFD4AF37).withValues(alpha: 0.2),
+                                      ),
+                                      child: const Icon(
+                                        Icons.info_outline,
+                                        size: 20,
+                                        color: Color(0xFFD4AF37),
+                                      ),
+                                    ),
+                                    const SizedBox(width: 12),
+                                    const Text(
+                                      'Cita Actual',
+                                      style: TextStyle(
+                                        color: Colors.white,
+                                        fontWeight: FontWeight.w800,
+                                        fontSize: 16,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                                const SizedBox(height: 12),
+                                _InfoRow(label: 'Estado:', value: widget.cita.estado),
+                                _InfoRow(
+                                  label: 'Fecha/Hora:',
+                                  value: _formatDateTime(widget.cita.fechaInicio),
+                                ),
+                              ],
+                            ),
+                          ),
+                          const SizedBox(height: 24),
+
+                          // Selección de servicio
+                          _SectionCardEdit(
+                            icon: Icons.content_cut,
+                            title: 'Servicio',
+                            child: Container(
+                              padding: const EdgeInsets.symmetric(horizontal: 12),
+                              decoration: BoxDecoration(
+                                color: const Color(0xFF1A1A1E),
+                                borderRadius: BorderRadius.circular(14),
+                                border: Border.all(color: const Color(0xFFD4AF37).withValues(alpha: 0.4)),
+                              ),
+                              child: DropdownButtonFormField<String>(
+                                initialValue: _selectedServicioId,
+                                dropdownColor: const Color(0xFF1A1A1E),
+                                decoration: const InputDecoration(
+                                  filled: true,
+                                  fillColor: Color(0xFF1A1A1E),
+                                  border: InputBorder.none,
+                                  prefixIcon: Icon(
+                                    Icons.content_cut,
+                                    color: Color(0xFFD4AF37),
+                                  ),
+                                  hintText: 'Selecciona un servicio',
+                                  hintStyle: TextStyle(color: Colors.white60),
+                                ),
+                                style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w600),
+                                items: services.map((servicio) {
+                                  return DropdownMenuItem(
+                                    value: servicio.id,
+                                    child: Text('${servicio.nombre} - \$${servicio.precio}', style: const TextStyle(color: Colors.white)),
+                                  );
+                                }).toList(),
+                                onChanged: (value) {
+                                  setState(() {
+                                    _selectedServicioId = value;
+                                    _selectedPeluqueroId = null;
+                                  });
+                                },
+                              ),
+                            ),
+                          ),
+                          const SizedBox(height: 16),
+
+                          // Selección de peluquero
+                          _SectionCardEdit(
+                            icon: Icons.person,
+                            title: 'Peluquero',
+                            child: Container(
+                              padding: const EdgeInsets.symmetric(horizontal: 12),
+                              decoration: BoxDecoration(
+                                color: const Color(0xFF1A1A1E),
+                                borderRadius: BorderRadius.circular(14),
+                                border: Border.all(color: const Color(0xFFD4AF37).withValues(alpha: 0.4)),
+                              ),
+                              child: DropdownButtonFormField<String>(
+                                initialValue: _selectedPeluqueroId,
+                                dropdownColor: const Color(0xFF1A1A1E),
+                                decoration: const InputDecoration(
+                                  filled: true,
+                                  fillColor: Color(0xFF1A1A1E),
+                                  border: InputBorder.none,
+                                  prefixIcon: Icon(
+                                    Icons.person,
+                                    color: Color(0xFFD4AF37),
+                                  ),
+                                  hintText: 'Selecciona un peluquero',
+                                  hintStyle: TextStyle(color: Colors.white60),
+                                ),
+                                style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w600),
+                                items: hairstylists.map((peluquero) {
+                                  return DropdownMenuItem(
+                                    value: peluquero.id,
+                                    child: Text(peluquero.nombre, style: const TextStyle(color: Colors.white)),
+                                  );
+                                }).toList(),
+                                onChanged: (value) {
+                                  setState(() {
+                                    _selectedPeluqueroId = value;
+                                  });
+                                },
+                              ),
+                            ),
+                          ),
+                          const SizedBox(height: 16),
+
+                          // Selección de fecha y hora
+                          Row(
+                            children: [
+                              Expanded(
+                                child: _SectionCardEdit(
+                                  icon: Icons.calendar_today,
+                                  title: 'Fecha',
+                                  child: InkWell(
+                                    onTap: _selectDate,
+                                    child: Container(
+                                      padding: const EdgeInsets.all(14),
+                                      decoration: BoxDecoration(
+                                        border: Border.all(color: const Color(0xFFD4AF37).withValues(alpha: 0.4)),
+                                        borderRadius: BorderRadius.circular(14),
+                                        color: const Color(0xFF1A1A1E),
+                                      ),
+                                      child: Row(
+                                        children: [
+                                          const Icon(
+                                            Icons.calendar_today,
+                                            color: Color(0xFFD4AF37),
+                                          ),
+                                          const SizedBox(width: 12),
+                                          Expanded(
+                                            child: Text(
+                                              _formatDate(_selectedDate),
+                                              style: const TextStyle(
+                                                fontWeight: FontWeight.w600,
+                                                color: Colors.white,
+                                              ),
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ),
+                              const SizedBox(width: 12),
+                              Expanded(
+                                child: _SectionCardEdit(
+                                  icon: Icons.access_time,
+                                  title: 'Hora',
+                                  child: InkWell(
+                                    onTap: _selectTime,
+                                    child: Container(
+                                      padding: const EdgeInsets.all(14),
+                                      decoration: BoxDecoration(
+                                        border: Border.all(color: const Color(0xFFD4AF37).withValues(alpha: 0.4)),
+                                        borderRadius: BorderRadius.circular(14),
+                                        color: const Color(0xFF1A1A1E),
+                                      ),
+                                      child: Row(
+                                        children: [
+                                          const Icon(
+                                            Icons.access_time,
+                                            color: Color(0xFFD4AF37),
+                                          ),
+                                          const SizedBox(width: 12),
+                                          Expanded(
+                                            child: Text(
+                                              _formatTime(_selectedTime),
+                                              style: const TextStyle(
+                                                fontWeight: FontWeight.w600,
+                                                color: Colors.white,
+                                              ),
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                  ),
+                                ),
                               ),
                             ],
                           ),
-                        ),
-                        const SizedBox(height: 24),
+                          const SizedBox(height: 16),
 
-                        // Selección de servicio
-                        _SectionCardEdit(
-                          icon: Icons.content_cut,
-                          title: 'Servicio',
-                          child: Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 12),
-                            decoration: BoxDecoration(
-                              color: Colors.white.withValues(alpha: 0.6),
-                              borderRadius: BorderRadius.circular(14),
-                              border: Border.all(color: Colors.grey.shade200),
-                            ),
-                            child: DropdownButtonFormField<String>(
-                              value: _selectedServicioId,
-                              decoration: InputDecoration(
-                                border: InputBorder.none,
-                                prefixIcon: Icon(
-                                  Icons.content_cut,
-                                  color: Theme.of(context).colorScheme.secondary,
-                                ),
-                                hintText: 'Selecciona un servicio',
-                              ),
-                              items: services.map((servicio) {
-                                return DropdownMenuItem(
-                                  value: servicio.id,
-                                  child: Text('${servicio.nombre} - \$${servicio.precio}'),
-                                );
-                              }).toList(),
-                              onChanged: (value) {
-                                setState(() {
-                                  _selectedServicioId = value;
-                                  // Resetear peluquero cuando cambia el servicio
-                                  _selectedPeluqueroId = null;
-                                });
-                              },
-                            ),
-                          ),
-                        ),
-                        const SizedBox(height: 16),
-
-                        // Selección de peluquero
-                        _SectionCardEdit(
-                          icon: Icons.person,
-                          title: 'Peluquero',
-                          child: Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 12),
-                            decoration: BoxDecoration(
-                              color: Colors.white.withValues(alpha: 0.6),
-                              borderRadius: BorderRadius.circular(14),
-                              border: Border.all(color: Colors.grey.shade200),
-                            ),
-                            child: DropdownButtonFormField<String>(
-                              key: ValueKey(_selectedServicioId), // Reconstruir cuando cambie el servicio
-                              value: _selectedPeluqueroId,
-                              decoration: InputDecoration(
-                                border: InputBorder.none,
-                                prefixIcon: Icon(
-                                  Icons.person,
-                                  color: Theme.of(context).colorScheme.secondary,
-                                ),
-                                hintText: 'Selecciona un peluquero',
-                              ),
-                              items: hairstylists.map((peluquero) {
-                                return DropdownMenuItem(
-                                  value: peluquero.id,
-                                  child: Text(peluquero.nombre),
-                                );
-                              }).toList(),
-                              onChanged: (value) {
-                                setState(() {
-                                  _selectedPeluqueroId = value;
-                                });
-                              },
-                            ),
-                          ),
-                        ),
-                        const SizedBox(height: 16),
-
-                        // Selección de fecha y hora
-                        Row(
-                          children: [
-                            Expanded(
-                              child: _SectionCardEdit(
-                                icon: Icons.calendar_today,
-                                title: 'Fecha',
-                                child: InkWell(
-                                  onTap: _selectDate,
-                                  child: Container(
-                                    padding: const EdgeInsets.all(14),
-                                    decoration: BoxDecoration(
-                                      border: Border.all(color: Colors.grey.shade200),
-                                      borderRadius: BorderRadius.circular(14),
-                                      color: Colors.white.withValues(alpha: 0.6),
-                                    ),
-                                    child: Row(
-                                      children: [
-                                        Icon(
-                                          Icons.calendar_today,
-                                          color: Theme.of(context).colorScheme.secondary,
-                                        ),
-                                        const SizedBox(width: 12),
-                                        Expanded(
-                                          child: Text(
-                                            _formatDate(_selectedDate),
-                                            style: const TextStyle(
-                                              fontWeight: FontWeight.w600,
-                                            ),
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                                ),
-                              ),
-                            ),
-                            const SizedBox(width: 12),
-                            Expanded(
-                              child: _SectionCardEdit(
-                                icon: Icons.access_time,
-                                title: 'Hora',
-                                child: InkWell(
-                                  onTap: _selectTime,
-                                  child: Container(
-                                    padding: const EdgeInsets.all(14),
-                                    decoration: BoxDecoration(
-                                      border: Border.all(color: Colors.grey.shade200),
-                                      borderRadius: BorderRadius.circular(14),
-                                      color: Colors.white.withValues(alpha: 0.6),
-                                    ),
-                                    child: Row(
-                                      children: [
-                                        Icon(
-                                          Icons.access_time,
-                                          color: Theme.of(context).colorScheme.secondary,
-                                        ),
-                                        const SizedBox(width: 12),
-                                        Expanded(
-                                          child: Text(
-                                            _formatTime(_selectedTime),
-                                            style: const TextStyle(
-                                              fontWeight: FontWeight.w600,
-                                            ),
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-                        const SizedBox(height: 16),
-
-                        // Notas
-                        _SectionCardEdit(
-                          icon: Icons.note_alt_outlined,
-                          title: 'Notas (opcional)',
-                          child: Container(
-                            decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(14),
-                              border: Border.all(color: Colors.grey.shade200),
-                              color: Colors.white.withValues(alpha: 0.6),
-                            ),
-                            child: TextField(
-                              controller: _notesController,
-                              maxLines: 3,
-                              decoration: const InputDecoration(
-                                hintText: 'Agrega notas adicionales...',
-                                border: InputBorder.none,
-                                contentPadding: EdgeInsets.all(14),
-                              ),
-                            ),
-                          ),
-                        ),
-                        const SizedBox(height: 32),
-
-                        // Botón de actualizar premium
-                        SizedBox(
-                          width: double.infinity,
-                          height: 56,
-                          child: ElevatedButton(
-                            onPressed: isLoading ? null : _updateAppointment,
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: Theme.of(context).colorScheme.secondary,
-                              elevation: 4,
-                              shape: RoundedRectangleBorder(
+                          // Notas
+                          _SectionCardEdit(
+                            icon: Icons.note_alt_outlined,
+                            title: 'Notas (opcional)',
+                            child: Container(
+                              decoration: BoxDecoration(
                                 borderRadius: BorderRadius.circular(14),
+                                border: Border.all(color: const Color(0xFFD4AF37).withValues(alpha: 0.4)),
+                                color: const Color(0xFF1A1A1E),
+                              ),
+                              child: TextField(
+                                controller: _notesController,
+                                maxLines: 3,
+                                style: const TextStyle(color: Colors.white),
+                                decoration: const InputDecoration(
+                                  filled: true,
+                                  fillColor: Color(0xFF1A1A1E),
+                                  hintText: 'Agrega notas adicionales...',
+                                  hintStyle: TextStyle(color: Colors.white60),
+                                  border: InputBorder.none,
+                                  contentPadding: EdgeInsets.all(14),
+                                ),
                               ),
                             ),
-                            child: isLoading
-                                ? SizedBox(
-                                    height: 24,
-                                    width: 24,
-                                    child: CircularProgressIndicator(
-                                      strokeWidth: 2.5,
-                                      valueColor: AlwaysStoppedAnimation<Color>(
-                                        Theme.of(context).colorScheme.onSecondary,
-                                      ),
-                                    ),
-                                  )
-                                : Row(
-                                    mainAxisAlignment: MainAxisAlignment.center,
-                                    children: [
-                                      Icon(
-                                        Icons.check_circle_outline,
-                                        color: Theme.of(context).colorScheme.onSecondary,
-                                        size: 22,
-                                      ),
-                                      const SizedBox(width: 10),
-                                      Text(
-                                        'Actualizar Cita',
-                                        style: TextStyle(
-                                          fontSize: 16,
-                                          fontWeight: FontWeight.bold,
-                                          color: Theme.of(context).colorScheme.onSecondary,
-                                        ),
-                                      ),
-                                    ],
-                                  ),
                           ),
-                        ),
-                      ],
+                          const SizedBox(height: 32),
+
+                          // Botón de actualizar
+                          SizedBox(
+                            width: double.infinity,
+                            height: 56,
+                            child: ElevatedButton(
+                              onPressed: isLoading ? null : _updateAppointment,
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: const Color(0xFFD4AF37),
+                                foregroundColor: Colors.black,
+                                elevation: 8,
+                                shadowColor: const Color(0xFFD4AF37).withValues(alpha: 0.5),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(14),
+                                ),
+                              ),
+                              child: isLoading
+                                  ? const SizedBox(
+                                      height: 24,
+                                      width: 24,
+                                      child: CircularProgressIndicator(
+                                        strokeWidth: 2.5,
+                                        valueColor: AlwaysStoppedAnimation<Color>(Colors.black),
+                                      ),
+                                    )
+                                  : const Row(
+                                      mainAxisAlignment: MainAxisAlignment.center,
+                                      children: [
+                                        Icon(
+                                          Icons.check_circle_outline,
+                                          color: Colors.black,
+                                          size: 22,
+                                        ),
+                                        SizedBox(width: 10),
+                                        Text(
+                                          'ACTUALIZAR CITA',
+                                          style: TextStyle(
+                                            fontSize: 16,
+                                            fontWeight: FontWeight.w800,
+                                            color: Colors.black,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                            ),
+                          ),
+                        ],
+                      ),
                     ),
-                  ),
-                ],
-              );
-            },
-            loading: () => const Center(child: CircularProgressIndicator()),
-            error: (err, stack) => Center(child: Text('Error: $err')),
-          );
-        },
-        loading: () => const Center(child: CircularProgressIndicator()),
-        error: (err, stack) => Center(child: Text('Error: $err')),
+                  ],
+                );
+              },
+              loading: () => const Center(child: CircularProgressIndicator()),
+              error: (err, stack) => Center(child: Text('Error: $err')),
+            );
+          },
+          loading: () => const Center(child: CircularProgressIndicator()),
+          error: (err, stack) => Center(child: Text('Error: $err')),
+        ),
       ),
     );
   }
@@ -557,9 +608,9 @@ class _InfoRow extends StatelessWidget {
         children: [
           Text(
             label,
-            style: TextStyle(
+            style: const TextStyle(
               fontWeight: FontWeight.w600,
-              color: Theme.of(context).colorScheme.primary,
+              color: Color(0xFFD4AF37),
               fontSize: 13,
             ),
           ),
@@ -570,6 +621,7 @@ class _InfoRow extends StatelessWidget {
               style: const TextStyle(
                 fontSize: 13,
                 fontWeight: FontWeight.w500,
+                color: Colors.white,
               ),
             ),
           ),
@@ -600,14 +652,16 @@ class _SectionCardEdit extends StatelessWidget {
           children: [
             Icon(
               icon,
-              color: Theme.of(context).colorScheme.primary,
+              color: const Color(0xFFD4AF37),
               size: 18,
             ),
             const SizedBox(width: 8),
             Text(
               title,
-              style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                fontWeight: FontWeight.bold,
+              style: const TextStyle(
+                color: Colors.white,
+                fontWeight: FontWeight.w700,
+                fontSize: 15,
               ),
             ),
           ],
