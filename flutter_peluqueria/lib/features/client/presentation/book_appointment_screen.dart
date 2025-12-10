@@ -134,7 +134,18 @@ class _BookAppointmentScreenState extends ConsumerState<BookAppointmentScreen> {
   Widget build(BuildContext context) {
     final servicesAsync = ref.watch(serviceProviderProvider);
     return Scaffold(
-      appBar: PremiumAppBarWithIcon(icon: Icons.calendar_today, title: 'Agendar Cita'),
+      appBar: PremiumAppBarWithIcon(
+        icon: Icons.calendar_today,
+        title: 'Agendar Cita',
+        showBack: true,
+        onBackPressed: () {
+          if (GoRouter.of(context).canPop()) {
+            context.pop();
+          } else {
+            context.go('/home');
+          }
+        },
+      ),
       body: Stack(
         children: [
           Container(
@@ -228,7 +239,51 @@ class _BookAppointmentScreenState extends ConsumerState<BookAppointmentScreen> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        _SectionCard(
+                          Container(
+                            padding: const EdgeInsets.all(16),
+                            decoration: BoxDecoration(
+                              color: Colors.blue.shade50,
+                              borderRadius: BorderRadius.circular(14),
+                              border: Border.all(color: Colors.grey.shade200),
+                            ),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Row(
+                                  children: [
+                                    Container(
+                                      padding: const EdgeInsets.all(10),
+                                      decoration: BoxDecoration(
+                                        shape: BoxShape.circle,
+                                        color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.2),
+                                      ),
+                                      child: Icon(
+                                        Icons.info_outline,
+                                        size: 20,
+                                        color: Theme.of(context).colorScheme.primary,
+                                      ),
+                                    ),
+                                    const SizedBox(width: 12),
+                                    Text(
+                                      'Nueva Cita',
+                                      style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                                const SizedBox(height: 12),
+                                Text(
+                                  'Completa los detalles para agendar una nueva cita',
+                                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                                    color: Colors.grey.shade700,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                          const SizedBox(height: 24),
+                          _SectionCard(
                           icon: Icons.content_cut,
                           title: 'Servicio',
                           child: servicesAsync.when(

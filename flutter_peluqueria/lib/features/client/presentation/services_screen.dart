@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:go_router/go_router.dart';
 import '../../../core/widgets/premium_app_bar.dart';
 import '../application/service_provider.dart';
 
@@ -16,14 +15,6 @@ class ServicesScreen extends ConsumerWidget {
       appBar: PremiumAppBarWithIcon(
         title: 'Nuestros Servicios',
         icon: Icons.cut,
-        showBack: true,
-        onBackPressed: () {
-          if (GoRouter.of(context).canPop()) {
-            context.pop();
-          } else {
-            context.go('/home');
-          }
-        },
       ),
       body: servicesAsync.when(
         data: (services) {

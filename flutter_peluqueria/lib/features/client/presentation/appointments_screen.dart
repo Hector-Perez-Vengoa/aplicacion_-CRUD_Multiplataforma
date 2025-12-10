@@ -17,14 +17,6 @@ class AppointmentsScreen extends ConsumerWidget {
       appBar: PremiumAppBarWithIcon(
         icon: Icons.calendar_today,
         title: 'Mis Citas',
-        showBack: true,
-        onBackPressed: () {
-          if (GoRouter.of(context).canPop()) {
-            context.pop();
-          } else {
-            context.go('/home');
-          }
-        },
       ),
       body: appointmentsAsync.when(
         data: (appointments) {
