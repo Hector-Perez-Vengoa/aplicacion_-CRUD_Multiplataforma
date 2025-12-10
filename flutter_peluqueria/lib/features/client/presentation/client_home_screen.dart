@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../../features/auth/application/auth_provider.dart';
 import '../../../core/widgets/floating_notification.dart';
+import '../../../core/widgets/premium_app_bar.dart';
 import '../application/appointment_provider.dart';
 import '../application/service_provider.dart';
 
@@ -35,20 +36,14 @@ class _ClientHomeScreenState extends ConsumerState<ClientHomeScreen> {
           },
           child: Scaffold(
             backgroundColor: Colors.white,
-            appBar: AppBar(
-              title: const Text('Barbería Premium'),
-              backgroundColor: Theme.of(context).colorScheme.primary,
-              foregroundColor: Colors.white,
-              elevation: 0,
-              leading: GoRouter.of(context).canPop()
-                  ? IconButton(
-                      icon: const Icon(Icons.arrow_back),
-                      onPressed: () => GoRouter.of(context).pop(),
-                    )
-                  : null,
+            appBar: PremiumAppBarWithIcon(
+              title: 'Barbería Premium',
+              icon: Icons.content_cut,
+              showBack: GoRouter.of(context).canPop(),
+              onBackPressed: () => GoRouter.of(context).pop(),
               actions: [
                 IconButton(
-                  icon: const Icon(Icons.logout),
+                  icon: const Icon(Icons.logout, color: Colors.white),
                   onPressed: () {
                     ref.read(authNotifierProvider.notifier).logout();
                     context.go('/login');

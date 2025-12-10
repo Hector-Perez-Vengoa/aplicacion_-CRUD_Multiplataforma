@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../../core/widgets/floating_notification.dart';
+import '../../../core/widgets/premium_app_bar.dart';
 import '../../../domain/models/peluquero.dart';
 import '../../../domain/models/servicio.dart';
 import '../application/service_provider.dart';
@@ -147,34 +148,23 @@ class _BookAppointmentScreenState extends ConsumerState<BookAppointmentScreen> {
 
     return Scaffold(
       backgroundColor: Colors.grey.shade50,
-      appBar: AppBar(
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back),
-          onPressed: () {
-            if (GoRouter.of(context).canPop()) {
-              context.pop();
-            } else {
-              context.go('/home');
-            }
-          },
-        ),
-        title: Row(
-          children: [
-            Icon(
-              Icons.calendar_month,
-              color: Theme.of(context).colorScheme.secondary,
-            ),
-            const SizedBox(width: 8),
-            const Text('AGENDAR CITA'),
-          ],
-        ),
+      appBar: PremiumAppBarWithIcon(
+        title: 'Agendar Cita',
+        icon: Icons.calendar_month,
+        showBack: true,
+        onBackPressed: () {
+          if (GoRouter.of(context).canPop()) {
+            context.pop();
+          } else {
+            context.go('/home');
+          }
+        },
         actions: [
           IconButton(
-            icon: const Icon(Icons.home),
+            icon: const Icon(Icons.home, color: Colors.white),
             onPressed: () => context.go('/home'),
           ),
         ],
-        centerTitle: false,
       ),
       body: SingleChildScrollView(
         child: Column(

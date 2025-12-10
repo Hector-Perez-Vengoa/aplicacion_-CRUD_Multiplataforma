@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import '../../../core/widgets/premium_app_bar.dart';
 import '../application/service_provider.dart';
 
 class ServicesScreen extends ConsumerWidget {
@@ -12,21 +13,17 @@ class ServicesScreen extends ConsumerWidget {
     final colorScheme = Theme.of(context).colorScheme;
 
     return Scaffold(
-      appBar: AppBar(
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back),
-          onPressed: () {
-            if (GoRouter.of(context).canPop()) {
-              context.pop();
-            } else {
-              context.go('/home');
-            }
-          },
-        ),
-        title: const Text('Nuestros Servicios'),
-        backgroundColor: colorScheme.primary,
-        foregroundColor: Colors.white,
-        elevation: 0,
+      appBar: PremiumAppBarWithIcon(
+        title: 'Nuestros Servicios',
+        icon: Icons.cut,
+        showBack: true,
+        onBackPressed: () {
+          if (GoRouter.of(context).canPop()) {
+            context.pop();
+          } else {
+            context.go('/home');
+          }
+        },
       ),
       body: servicesAsync.when(
         data: (services) {
