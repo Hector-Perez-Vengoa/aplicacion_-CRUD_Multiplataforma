@@ -13,8 +13,24 @@ class HairstylistHomeScreen extends ConsumerWidget {
     final appointmentsAsync = ref.watch(hairstylistAppointmentsProviderProvider);
 
     return Scaffold(
+      backgroundColor: Colors.grey.shade50,
       appBar: AppBar(
-        title: const Text('Peluquería - Peluquero'),
+        leading: GoRouter.of(context).canPop()
+            ? IconButton(
+                icon: const Icon(Icons.arrow_back),
+                onPressed: () => context.pop(),
+              )
+            : null,
+        title: Row(
+          children: [
+            Icon(
+              Icons.content_cut,
+              color: Theme.of(context).colorScheme.secondary,
+            ),
+            const SizedBox(width: 8),
+            const Text('PANEL PELUQUERO'),
+          ],
+        ),
         actions: [
           IconButton(
             icon: const Icon(Icons.logout),
@@ -27,90 +43,168 @@ class HairstylistHomeScreen extends ConsumerWidget {
       ),
       body: authState.isAuthenticated
           ? SingleChildScrollView(
-              padding: const EdgeInsets.all(16),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(
-                    'Bienvenido ${authState.usuario?.nombre ?? 'Peluquero'}',
-                    style: Theme.of(context).textTheme.headlineSmall,
-                  ),
-                  const SizedBox(height: 8),
-                  Text(
-                    'Gestiona tus citas y horarios',
-                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                          color: Colors.grey[600],
+                  // Header con bienvenida
+                  Container(
+                    width: double.infinity,
+                    padding: const EdgeInsets.all(24),
+                    decoration: BoxDecoration(
+                      gradient: LinearGradient(
+                        begin: Alignment.topLeft,
+                        end: Alignment.bottomRight,
+                        colors: [
+                          Theme.of(context).colorScheme.primary,
+                          Theme.of(context).colorScheme.tertiary,
+                        ],
+                      ),
+                      borderRadius: const BorderRadius.only(
+                        bottomLeft: Radius.circular(30),
+                        bottomRight: Radius.circular(30),
+                      ),
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'Bienvenido,',
+                          style: TextStyle(
+                            color: Colors.white.withValues(alpha: 0.8),
+                            fontSize: 16,
+                          ),
                         ),
+                        const SizedBox(height: 4),
+                        Text(
+                          authState.usuario?.nombre ?? 'Peluquero',
+                          style: TextStyle(
+                            color: Theme.of(context).colorScheme.secondary,
+                            fontSize: 28,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        const SizedBox(height: 8),
+                        Text(
+                          'Gestiona tus citas y agenda',
+                          style: TextStyle(
+                            color: Colors.white.withValues(alpha: 0.9),
+                            fontSize: 14,
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
-                  const SizedBox(height: 24),
 
+                  const SizedBox(height: 24),
+                  
                   // Estadísticas rápidas
-                  _QuickStatsSection(appointmentsAsync: appointmentsAsync),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 16),
+                    child: _QuickStatsSection(appointmentsAsync: appointmentsAsync),
+                  ),
                   
                   const SizedBox(height: 24),
 
                   // Citas del día
-                  Text(
-                    'Citas de hoy',
-                    style: Theme.of(context).textTheme.titleLarge,
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 16),
+                    child: Row(
+                      children: [
+                        Icon(
+                          Icons.today,
+                          color: Theme.of(context).colorScheme.primary,
+                          size: 24,
+                        ),
+                        const SizedBox(width: 8),
+                        Text(
+                          'Citas de Hoy',
+                          style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
                   const SizedBox(height: 12),
                   
-                  appointmentsAsync.when(
-                    data: (appointments) {
-                      final today = DateTime.now();
-                      final todayAppointments = appointments.where((apt) {
-                        return apt.fechaInicio.year == today.year &&
-                            apt.fechaInicio.month == today.month &&
-                            apt.fechaInicio.day == today.day;
-                      }).toList();
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 16),
+                    child: appointmentsAsync.when(
+                      data: (appointments) {
+                        final today = DateTime.now();
+                        final todayAppointments = appointments.where((apt) {
+                          return apt.fechaInicio.year == today.year &&
+                              apt.fechaInicio.month == today.month &&
+                              apt.fechaInicio.day == today.day;
+                        }).toList();
 
-                      if (todayAppointments.isEmpty) {
-                        return Card(
-                          child: Padding(
-                            padding: const EdgeInsets.all(24),
-                            child: Center(
-                              child: Column(
-                                children: [
-                                  Icon(
-                                    Icons.calendar_today,
-                                    size: 48,
-                                    color: Colors.grey[400],
-                                  ),
-                                  const SizedBox(height: 12),
-                                  Text(
-                                    'No hay citas para hoy',
-                                    style: TextStyle(color: Colors.grey[600]),
-                                  ),
-                                ],
+                        if (todayAppointments.isEmpty) {
+                          return Card(
+                            elevation: 2,
+                            child: Padding(
+                              padding: const EdgeInsets.all(32),
+                              child: Center(
+                                child: Column(
+                                  children: [
+                                    Icon(
+                                      Icons.free_breakfast,
+                                      size: 60,
+                                      color: Colors.grey[400],
+                                    ),
+                                    const SizedBox(height: 16),
+                                    Text(
+                                      'No hay citas para hoy',
+                                      style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                                        fontWeight: FontWeight.w600,
+                                      ),
+                                    ),
+                                    const SizedBox(height: 8),
+                                    Text(
+                                      '¡Disfruta tu día libre!',
+                                      style: TextStyle(color: Colors.grey[600]),
+                                    ),
+                                  ],
+                                ),
                               ),
                             ),
-                          ),
-                        );
-                      }
+                          );
+                        }
 
-                      return ListView.builder(
-                        shrinkWrap: true,
-                        physics: const NeverScrollableScrollPhysics(),
-                        itemCount: todayAppointments.length,
-                        itemBuilder: (context, index) {
-                          final appointment = todayAppointments[index];
-                          return _AppointmentCard(appointment: appointment);
-                        },
-                      );
-                    },
-                    loading: () => const Center(
-                      child: Padding(
-                        padding: EdgeInsets.all(24),
-                        child: CircularProgressIndicator(),
+                        return ListView.builder(
+                          shrinkWrap: true,
+                          physics: const NeverScrollableScrollPhysics(),
+                          itemCount: todayAppointments.length,
+                          itemBuilder: (context, index) {
+                            final appointment = todayAppointments[index];
+                            return _AppointmentCard(appointment: appointment);
+                          },
+                        );
+                      },
+                      loading: () => const Center(
+                        child: Padding(
+                          padding: EdgeInsets.all(24),
+                          child: CircularProgressIndicator(),
+                        ),
                       ),
-                    ),
-                    error: (error, _) => Card(
-                      child: Padding(
-                        padding: const EdgeInsets.all(16),
-                        child: Text(
-                          'Error al cargar citas: $error',
-                          style: TextStyle(color: Colors.red[700]),
+                      error: (error, _) => Card(
+                        elevation: 2,
+                        child: Padding(
+                          padding: const EdgeInsets.all(20),
+                          child: Row(
+                            children: [
+                              Icon(
+                                Icons.error_outline,
+                                color: Theme.of(context).colorScheme.error,
+                              ),
+                              const SizedBox(width: 12),
+                              Expanded(
+                                child: Text(
+                                  'Error al cargar citas: $error',
+                                  style: TextStyle(color: Theme.of(context).colorScheme.error),
+                                ),
+                              ),
+                            ],
+                          ),
                         ),
                       ),
                     ),
@@ -118,21 +212,31 @@ class HairstylistHomeScreen extends ConsumerWidget {
                   
                   const SizedBox(height: 24),
 
-                  // Botones de acción
-                  Row(
-                    children: [
-                      Expanded(
-                        child: ElevatedButton.icon(
-                          onPressed: () => context.go('/hairstylist/agenda'),
-                          icon: const Icon(Icons.calendar_month),
-                          label: const Text('Ver agenda completa'),
-                          style: ElevatedButton.styleFrom(
-                            padding: const EdgeInsets.all(16),
+                  // Botón ver agenda completa
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 16),
+                    child: SizedBox(
+                      width: double.infinity,
+                      height: 56,
+                      child: ElevatedButton.icon(
+                        onPressed: () => context.go('/hairstylist/agenda'),
+                        icon: const Icon(Icons.calendar_month, size: 24),
+                        label: const Text(
+                          'VER AGENDA COMPLETA',
+                          style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                            letterSpacing: 1,
                           ),
                         ),
+                        style: ElevatedButton.styleFrom(
+                          elevation: 2,
+                        ),
                       ),
-                    ],
+                    ),
                   ),
+                  
+                  const SizedBox(height: 24),
                 ],
               ),
             )
@@ -188,7 +292,7 @@ class _QuickStatsSection extends StatelessWidget {
             const SizedBox(width: 12),
             Expanded(
               child: _StatCard(
-                title: 'Esta semana',
+                title: 'Semana',
                 value: totalThisWeek.toString(),
                 icon: Icons.calendar_view_week,
                 color: Colors.orange,
@@ -219,23 +323,44 @@ class _StatCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Card(
-      child: Padding(
+      elevation: 2,
+      child: Container(
         padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(16),
+          gradient: LinearGradient(
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+            colors: [
+              color.withValues(alpha: 0.1),
+              color.withValues(alpha: 0.05),
+            ],
+          ),
+        ),
         child: Column(
           children: [
-            Icon(icon, color: color, size: 32),
-            const SizedBox(height: 8),
+            Icon(
+              icon,
+              color: color,
+              size: 32,
+            ),
+            const SizedBox(height: 12),
             Text(
               value,
-              style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-                    fontWeight: FontWeight.bold,
-                    color: color,
-                  ),
+              style: TextStyle(
+                fontSize: 28,
+                fontWeight: FontWeight.bold,
+                color: color,
+              ),
             ),
             const SizedBox(height: 4),
             Text(
               title,
-              style: Theme.of(context).textTheme.bodySmall,
+              style: TextStyle(
+                fontSize: 12,
+                color: Colors.grey[700],
+                fontWeight: FontWeight.w500,
+              ),
               textAlign: TextAlign.center,
             ),
           ],
@@ -254,33 +379,83 @@ class _AppointmentCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return Card(
       margin: const EdgeInsets.only(bottom: 12),
-      child: ListTile(
-        leading: CircleAvatar(
-          backgroundColor: _getStatusColor(appointment.estado),
-          child: Icon(
-            _getStatusIcon(appointment.estado),
-            color: Colors.white,
-          ),
-        ),
-        title: Text(
-          'Cita #${appointment.id.substring(0, 8)}',
-          style: const TextStyle(fontWeight: FontWeight.bold),
-        ),
-        subtitle: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
+      elevation: 2,
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Row(
           children: [
-            const SizedBox(height: 4),
-            Text(
-              'Hora: ${appointment.fechaInicio.hour}:${appointment.fechaInicio.minute.toString().padLeft(2, '0')}',
+            Container(
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: _getStatusColor(appointment.estado).withValues(alpha: 0.2),
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: Icon(
+                _getStatusIcon(appointment.estado),
+                color: _getStatusColor(appointment.estado),
+                size: 24,
+              ),
             ),
-            Text('Estado: ${_getStatusLabel(appointment.estado)}'),
+            const SizedBox(width: 16),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    '${appointment.fechaInicio.hour}:${appointment.fechaInicio.minute.toString().padLeft(2, '0')}',
+                    style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                      fontWeight: FontWeight.bold,
+                      color: Theme.of(context).colorScheme.primary,
+                    ),
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    'Cita #${appointment.id.substring(0, 8)}',
+                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                  const SizedBox(height: 4),
+                  Row(
+                    children: [
+                      Icon(
+                        Icons.person,
+                        size: 14,
+                        color: Colors.grey[600],
+                      ),
+                      const SizedBox(width: 4),
+                      Text(
+                        appointment.cliente ?? 'Cliente',
+                        style: TextStyle(
+                          fontSize: 13,
+                          color: Colors.grey[600],
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+              decoration: BoxDecoration(
+                color: _getStatusColor(appointment.estado).withValues(alpha: 0.15),
+                borderRadius: BorderRadius.circular(20),
+                border: Border.all(
+                  color: _getStatusColor(appointment.estado),
+                  width: 1.5,
+                ),
+              ),
+              child: Text(
+                _getStatusLabel(appointment.estado),
+                style: TextStyle(
+                  color: _getStatusColor(appointment.estado),
+                  fontWeight: FontWeight.bold,
+                  fontSize: 11,
+                ),
+              ),
+            ),
           ],
-        ),
-        trailing: IconButton(
-          icon: const Icon(Icons.arrow_forward_ios, size: 16),
-          onPressed: () {
-            // TODO: Navegar a detalles de la cita
-          },
         ),
       ),
     );

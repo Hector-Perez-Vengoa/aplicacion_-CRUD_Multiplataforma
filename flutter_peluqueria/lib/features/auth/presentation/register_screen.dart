@@ -146,85 +146,136 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
     }
 
     return Scaffold(
+      backgroundColor: Theme.of(context).colorScheme.primary,
       appBar: AppBar(
-        title: const Text('Registrarse'),
+        backgroundColor: Colors.transparent,
         elevation: 0,
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back),
+          onPressed: () => context.go('/login'),
+        ),
       ),
       body: SafeArea(
         child: SingleChildScrollView(
-          padding: const EdgeInsets.all(24.0),
-          child: Form(
-            key: _formKey,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                // Header
-                const SizedBox(height: 16),
-                Icon(
-                  Icons.person_add_outlined,
-                  size: 80,
-                  color: Theme.of(context).colorScheme.primary,
-                ),
-                const SizedBox(height: 24),
-
-                // Error message
-                if (_errorMessage != null)
-                  Padding(
-                    padding: const EdgeInsets.only(bottom: 16),
-                    child: Container(
-                      padding: const EdgeInsets.all(12),
-                      decoration: BoxDecoration(
-                        color: Theme.of(context).colorScheme.error.withValues(alpha: 0.1),
-                        border: Border.all(
-                          color: Theme.of(context).colorScheme.error,
-                        ),
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                      child: Text(
-                        _errorMessage!,
-                        style: TextStyle(
-                          color: Theme.of(context).colorScheme.error,
-                          fontSize: 14,
-                        ),
+          child: Column(
+            children: [
+              // Header con branding de barbería
+              Padding(
+                padding: const EdgeInsets.symmetric(vertical: 20),
+                child: Column(
+                  children: [
+                    Icon(
+                      Icons.content_cut,
+                      size: 50,
+                      color: Theme.of(context).colorScheme.secondary,
+                    ),
+                    const SizedBox(height: 12),
+                    Text(
+                      'CREAR CUENTA',
+                      style: TextStyle(
+                        color: Theme.of(context).colorScheme.secondary,
+                        fontSize: 24,
+                        fontWeight: FontWeight.bold,
+                        letterSpacing: 2,
                       ),
                     ),
-                  ),
+                  ],
+                ),
+              ),
 
-                // Role selector
-                Padding(
-                  padding: const EdgeInsets.only(bottom: 16),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        'Tipo de cuenta',
-                        style: Theme.of(context).textTheme.labelLarge,
-                      ),
-                      const SizedBox(height: 8),
-                      SegmentedButton<String>(
-                        segments: const [
-                          ButtonSegment(
-                            value: 'cliente',
-                            label: Text('Cliente'),
-                            icon: Icon(Icons.person),
-                          ),
-                          ButtonSegment(
-                            value: 'peluquero',
-                            label: Text('Peluquero'),
-                            icon: Icon(Icons.cut),
-                          ),
-                        ],
-                        selected: {_selectedRole},
-                        onSelectionChanged: (Set<String> newSelection) {
-                          setState(() {
-                            _selectedRole = newSelection.first;
-                            _selectedServices = []; // Limpiar servicios cuando se cambia el rol
-                          });
-                        },
-                      ),
-                    ],
+              // Formulario en card blanca
+              Container(
+                decoration: BoxDecoration(
+                  color: Theme.of(context).scaffoldBackgroundColor,
+                  borderRadius: const BorderRadius.only(
+                    topLeft: Radius.circular(30),
+                    topRight: Radius.circular(30),
                   ),
                 ),
+                child: Padding(
+                  padding: const EdgeInsets.all(24.0),
+                  child: Form(
+                    key: _formKey,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        const SizedBox(height: 8),
+
+                        // Error message
+                        if (_errorMessage != null)
+                          Padding(
+                            padding: const EdgeInsets.only(bottom: 16),
+                            child: Container(
+                              padding: const EdgeInsets.all(16),
+                              decoration: BoxDecoration(
+                                color: Theme.of(context).colorScheme.error.withValues(alpha: 0.1),
+                                border: Border.all(
+                                  color: Theme.of(context).colorScheme.error,
+                                ),
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                              child: Row(
+                                children: [
+                                  Icon(
+                                    Icons.error_outline,
+                                    color: Theme.of(context).colorScheme.error,
+                                  ),
+                                  const SizedBox(width: 12),
+                                  Expanded(
+                                    child: Text(
+                                      _errorMessage!,
+                                      style: TextStyle(
+                                        color: Theme.of(context).colorScheme.error,
+                                        fontSize: 14,
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+
+                        // Role selector con mejor diseño
+                        Padding(
+                          padding: const EdgeInsets.only(bottom: 20),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                'Tipo de cuenta',
+                                style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                              const SizedBox(height: 12),
+                              SegmentedButton<String>(
+                                style: SegmentedButton.styleFrom(
+                                  selectedBackgroundColor: Theme.of(context).colorScheme.secondary,
+                                  selectedForegroundColor: Theme.of(context).colorScheme.primary,
+                                ),
+                                segments: const [
+                                  ButtonSegment(
+                                    value: 'cliente',
+                                    label: Text('Cliente'),
+                                    icon: Icon(Icons.person),
+                                  ),
+                                  ButtonSegment(
+                                    value: 'peluquero',
+                                    label: Text('Peluquero'),
+                                    icon: Icon(Icons.content_cut),
+                                  ),
+                                ],
+                                selected: {_selectedRole},
+                                onSelectionChanged: (Set<String> newSelection) {
+                                  setState(() {
+                                    _selectedRole = newSelection.first;
+                                    _selectedServices = [];
+                                  });
+                                },
+                              ),
+                            ],
+                          ),
+                        ),
 
                 // Services selector (solo para peluquero)
                 if (_selectedRole == 'peluquero')
@@ -412,38 +463,55 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                 ),
                 const SizedBox(height: 24),
 
-                // Register button
-                ElevatedButton(
-                  onPressed: authState.isLoading ? null : _handleRegister,
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 16),
-                    child: authState.isLoading
-                        ? const SizedBox(
-                            height: 20,
-                            width: 20,
-                            child: CircularProgressIndicator(strokeWidth: 2),
-                          )
-                        : const Text(
-                            'Registrarse',
-                            style: TextStyle(fontSize: 16),
+                        // Register button con diseño mejorado
+                        SizedBox(
+                          height: 56,
+                          child: ElevatedButton(
+                            onPressed: authState.isLoading ? null : _handleRegister,
+                            child: authState.isLoading
+                                ? const SizedBox(
+                                    height: 20,
+                                    width: 20,
+                                    child: CircularProgressIndicator(strokeWidth: 2),
+                                  )
+                                : const Text(
+                                    'CREAR CUENTA',
+                                    style: TextStyle(
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.bold,
+                                      letterSpacing: 1,
+                                    ),
+                                  ),
                           ),
+                        ),
+                        const SizedBox(height: 20),
+
+                        // Login link
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Text(
+                              '¿Ya tienes cuenta? ',
+                              style: TextStyle(color: Colors.grey[600]),
+                            ),
+                            TextButton(
+                              onPressed: () => context.go('/login'),
+                              child: const Text(
+                                'Inicia sesión',
+                                style: TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 24),
+                      ],
+                    ),
                   ),
                 ),
-                const SizedBox(height: 16),
-
-                // Login link
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    const Text('¿Ya tienes cuenta? '),
-                    TextButton(
-                      onPressed: () => context.go('/login'),
-                      child: const Text('Inicia sesión'),
-                    ),
-                  ],
-                ),
-              ],
-            ),
+              ),
+            ],
           ),
         ),
       ),

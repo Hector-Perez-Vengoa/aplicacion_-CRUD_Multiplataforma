@@ -131,125 +131,383 @@ class _BookAppointmentScreenState extends ConsumerState<BookAppointmentScreen> {
     final servicesAsync = ref.watch(serviceProviderProvider);
 
     return Scaffold(
+      backgroundColor: Colors.grey.shade50,
       appBar: AppBar(
-        title: const Text('Agendar cita'),
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back),
+          onPressed: () {
+            if (GoRouter.of(context).canPop()) {
+              context.pop();
+            } else {
+              context.go('/home');
+            }
+          },
+        ),
+        title: Row(
+          children: [
+            Icon(
+              Icons.calendar_month,
+              color: Theme.of(context).colorScheme.secondary,
+            ),
+            const SizedBox(width: 8),
+            const Text('AGENDAR CITA'),
+          ],
+        ),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.home),
+            onPressed: () => context.go('/home'),
+          ),
+        ],
+        centerTitle: false,
       ),
       body: SingleChildScrollView(
-        padding: const EdgeInsets.all(16),
         child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Seleccionar servicio PRIMERO
-            Text('Servicio', style: Theme.of(context).textTheme.titleMedium),
-            const SizedBox(height: 8),
-            servicesAsync.when(
-              data: (services) {
-                return DropdownButton<Servicio>(
-                  isExpanded: true,
-                  hint: const Text('Selecciona un servicio'),
-                  value: selectedService,
-                  items: services
-                      .map((s) => DropdownMenuItem(
-                            value: s,
-                            child: Text('${s.nombre} - \$${s.precio}'),
-                          ))
-                      .toList(),
-                  onChanged: (value) => setState(() {
-                    selectedService = value;
-                    selectedHairstylist = null; // Limpiar peluquero cuando cambia servicio
-                  }),
-                );
-              },
-              loading: () => const CircularProgressIndicator(),
-              error: (error, _) => Text('Error: $error'),
+            // Header decorativo
+            Container(
+              width: double.infinity,
+              padding: const EdgeInsets.all(24),
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                  colors: [
+                    Theme.of(context).colorScheme.primary,
+                    Theme.of(context).colorScheme.tertiary,
+                  ],
+                ),
+              ),
+              child: Column(
+                children: [
+                  Icon(
+                    Icons.event_available,
+                    size: 50,
+                    color: Theme.of(context).colorScheme.secondary,
+                  ),
+                  const SizedBox(height: 12),
+                  Text(
+                    'Agenda tu Transformación',
+                    style: TextStyle(
+                      color: Theme.of(context).colorScheme.secondary,
+                      fontSize: 22,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    'Selecciona el servicio y hora que prefieras',
+                    style: TextStyle(
+                      color: Colors.white.withValues(alpha: 0.9),
+                      fontSize: 14,
+                    ),
+                  ),
+                ],
+              ),
             ),
-            const SizedBox(height: 24),
+            
+            Padding(
+              padding: const EdgeInsets.all(20),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // Seleccionar servicio
+                  _SectionCard(
+                    icon: Icons.content_cut,
+                    title: 'Servicio',
+                    child: servicesAsync.when(
+                      data: (services) {
+                        return Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 12),
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(12),
+                            border: Border.all(color: Colors.grey.shade300),
+                          ),
+                          child: DropdownButton<Servicio>(
+                            isExpanded: true,
+                            underline: const SizedBox(),
+                            hint: const Text('Selecciona un servicio'),
+                            value: selectedService,
+                            items: services
+                                .map((s) => DropdownMenuItem(
+                                      value: s,
+                                      child: Row(
+                                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                        children: [
+                                          Expanded(
+                                            child: Text(
+                                              s.nombre,
+                                              style: const TextStyle(fontWeight: FontWeight.w500),
+                                            ),
+                                          ),
+                                          Text(
+                                            '\$${s.precio}',
+                                            style: TextStyle(
+                                              color: Theme.of(context).colorScheme.secondary,
+                                              fontWeight: FontWeight.bold,
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ))
+                                .toList(),
+                            onChanged: (value) => setState(() {
+                              selectedService = value;
+                              selectedHairstylist = null;
+                            }),
+                          ),
+                        );
+                      },
+                      loading: () => const Center(
+                        child: Padding(
+                          padding: EdgeInsets.all(16),
+                          child: CircularProgressIndicator(),
+                        ),
+                      ),
+                      error: (error, _) => Padding(
+                        padding: const EdgeInsets.all(16),
+                        child: Text('Error: $error', style: TextStyle(color: Colors.red)),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 20),
 
-            // Seleccionar peluquero (después de seleccionar servicio)
-            Text('Peluquero', style: Theme.of(context).textTheme.titleMedium),
-            const SizedBox(height: 8),
-            if (selectedService != null)
-              Builder(builder: (context) {
-                final hairstylistsAsync = ref.watch(hairstylistProviderProvider(selectedService!.id));
-                return hairstylistsAsync.when(
-                  data: (hairstylists) {
-                    return DropdownButton<Peluquero>(
-                      isExpanded: true,
-                      hint: const Text('Selecciona un peluquero'),
-                      value: selectedHairstylist,
-                      items: hairstylists
-                          .map((h) => DropdownMenuItem(
-                                value: h,
-                                 child: Text(h.nombre),
+                  // Seleccionar peluquero
+                  _SectionCard(
+                    icon: Icons.person,
+                    title: 'Peluquero',
+                    child: selectedService != null
+                        ? Builder(builder: (context) {
+                            final hairstylistsAsync = ref.watch(hairstylistProviderProvider(selectedService!.id));
+                            return hairstylistsAsync.when(
+                              data: (hairstylists) {
+                                return Container(
+                                  padding: const EdgeInsets.symmetric(horizontal: 12),
+                                  decoration: BoxDecoration(
+                                    color: Colors.white,
+                                    borderRadius: BorderRadius.circular(12),
+                                    border: Border.all(color: Colors.grey.shade300),
+                                  ),
+                                  child: DropdownButton<Peluquero>(
+                                    isExpanded: true,
+                                    underline: const SizedBox(),
+                                    hint: const Text('Selecciona un peluquero'),
+                                    value: selectedHairstylist,
+                                    items: hairstylists
+                                        .map((h) => DropdownMenuItem(
+                                              value: h,
+                                              child: Row(
+                                                children: [
+                                                  CircleAvatar(
+                                                    backgroundColor: Theme.of(context).colorScheme.secondary.withValues(alpha: 0.2),
+                                                    child: Icon(
+                                                      Icons.person,
+                                                      color: Theme.of(context).colorScheme.primary,
+                                                    ),
+                                                  ),
+                                                  const SizedBox(width: 12),
+                                                  Text(
+                                                    h.nombre,
+                                                    style: const TextStyle(fontWeight: FontWeight.w500),
+                                                  ),
+                                                ],
+                                              ),
+                                            ))
+                                        .toList(),
+                                    onChanged: (value) => setState(() => selectedHairstylist = value),
+                                  ),
+                                );
+                              },
+                              loading: () => const Center(
+                                child: Padding(
+                                  padding: EdgeInsets.all(16),
+                                  child: CircularProgressIndicator(),
+                                ),
+                              ),
+                              error: (error, _) => Padding(
+                                padding: const EdgeInsets.all(16),
+                                child: Text('Error: $error', style: TextStyle(color: Colors.red)),
+                              ),
+                            );
+                          })
+                        : Container(
+                            padding: const EdgeInsets.all(16),
+                            decoration: BoxDecoration(
+                              color: Colors.grey.shade100,
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                            child: Row(
+                              children: [
+                                Icon(Icons.info_outline, color: Colors.grey[600]),
+                                const SizedBox(width: 12),
+                                const Text('Selecciona un servicio primero'),
+                              ],
+                            ),
+                          ),
+                  ),
+                  const SizedBox(height: 20),
+
+                  // Seleccionar fecha
+                  _SectionCard(
+                    icon: Icons.calendar_today,
+                    title: 'Fecha',
+                    child: InkWell(
+                      onTap: () => _selectDate(context),
+                      borderRadius: BorderRadius.circular(12),
+                      child: Container(
+                        padding: const EdgeInsets.all(16),
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(12),
+                          border: Border.all(color: Colors.grey.shade300),
+                        ),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Text(
+                              selectedDate == null
+                                  ? 'Selecciona una fecha'
+                                  : '${selectedDate!.day}/${selectedDate!.month}/${selectedDate!.year}',
+                              style: TextStyle(
+                                fontSize: 16,
+                                fontWeight: selectedDate != null ? FontWeight.w600 : FontWeight.normal,
+                                color: selectedDate != null ? Theme.of(context).colorScheme.primary : Colors.grey[600],
+                              ),
+                            ),
+                            Icon(
+                              Icons.arrow_forward_ios,
+                              size: 16,
+                              color: Colors.grey[400],
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 20),
+
+                  // Seleccionar hora
+                  _SectionCard(
+                    icon: Icons.access_time,
+                    title: 'Hora',
+                    child: Wrap(
+                      spacing: 8,
+                      runSpacing: 8,
+                      children: timeSlots
+                          .map((time) => ChoiceChip(
+                                label: Text(
+                                  time,
+                                  style: TextStyle(
+                                    fontWeight: FontWeight.w600,
+                                    color: selectedTime == time 
+                                        ? Theme.of(context).colorScheme.primary
+                                        : Colors.grey[700],
+                                  ),
+                                ),
+                                selected: selectedTime == time,
+                                selectedColor: Theme.of(context).colorScheme.secondary,
+                                backgroundColor: Colors.white,
+                                side: BorderSide(
+                                  color: selectedTime == time 
+                                      ? Theme.of(context).colorScheme.secondary
+                                      : Colors.grey.shade300,
+                                ),
+                                onSelected: (selected) {
+                                  setState(() => selectedTime = selected ? time : null);
+                                },
                               ))
                           .toList(),
-                      onChanged: (value) => setState(() => selectedHairstylist = value),
-                    );
-                  },
-                  loading: () => const CircularProgressIndicator(),
-                  error: (error, _) => Text('Error: $error'),
-                );
-              })
-            else
-              const Text('Selecciona un servicio primero'),
-            const SizedBox(height: 24),
+                    ),
+                  ),
+                  const SizedBox(height: 20),
 
-            // Notas opcionales
-            Text('Notas (opcional)', style: Theme.of(context).textTheme.titleMedium),
-            const SizedBox(height: 8),
-            TextField(
-              controller: _notesController,
-              maxLines: 3,
-              decoration: const InputDecoration(
-                border: OutlineInputBorder(),
-                hintText: 'Comentarios para el peluquero',
-              ),
-            ),
-            const SizedBox(height: 24),
+                  // Notas opcionales
+                  _SectionCard(
+                    icon: Icons.note_alt_outlined,
+                    title: 'Notas (opcional)',
+                    child: TextField(
+                      controller: _notesController,
+                      maxLines: 3,
+                      decoration: InputDecoration(
+                        hintText: 'Comentarios o preferencias especiales',
+                        filled: true,
+                        fillColor: Colors.white,
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(12),
+                          borderSide: BorderSide(color: Colors.grey.shade300),
+                        ),
+                        enabledBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(12),
+                          borderSide: BorderSide(color: Colors.grey.shade300),
+                        ),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 32),
 
-            // Seleccionar fecha
-            Text('Fecha', style: Theme.of(context).textTheme.titleMedium),
-            const SizedBox(height: 8),
-            ElevatedButton.icon(
-              onPressed: () => _selectDate(context),
-              icon: const Icon(Icons.calendar_today),
-              label: Text(
-                selectedDate == null
-                    ? 'Selecciona una fecha'
-                    : '${selectedDate!.day}/${selectedDate!.month}/${selectedDate!.year}',
-              ),
-            ),
-            const SizedBox(height: 24),
-
-            // Seleccionar hora
-            Text('Hora', style: Theme.of(context).textTheme.titleMedium),
-            const SizedBox(height: 8),
-            Wrap(
-              spacing: 8,
-              runSpacing: 8,
-              children: timeSlots
-                  .map((time) => ChoiceChip(
-                        label: Text(time),
-                        selected: selectedTime == time,
-                        onSelected: (selected) {
-                          setState(() => selectedTime = selected ? time : null);
-                        },
-                      ))
-                  .toList(),
-            ),
-            const SizedBox(height: 32),
-
-            // Botón confirmar
-            SizedBox(
-              width: double.infinity,
-              child: ElevatedButton(
-                onPressed: _submitBooking,
-                child: const Text('Confirmar cita'),
+                  // Botón confirmar
+                  SizedBox(
+                    width: double.infinity,
+                    height: 56,
+                    child: ElevatedButton(
+                      onPressed: _submitBooking,
+                      child: const Text(
+                        'CONFIRMAR CITA',
+                        style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                          letterSpacing: 1,
+                        ),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 20),
+                ],
               ),
             ),
           ],
         ),
       ),
+    );
+  }
+}
+
+class _SectionCard extends StatelessWidget {
+  final IconData icon;
+  final String title;
+  final Widget child;
+
+  const _SectionCard({
+    required this.icon,
+    required this.title,
+    required this.child,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          children: [
+            Icon(
+              icon,
+              color: Theme.of(context).colorScheme.primary,
+              size: 20,
+            ),
+            const SizedBox(width: 8),
+            Text(
+              title,
+              style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 12),
+        child,
+      ],
     );
   }
 }

@@ -5,6 +5,7 @@ import '../../features/auth/presentation/register_screen.dart';
 import '../../features/client/presentation/client_home_screen.dart';
 import '../../features/client/presentation/book_appointment_screen.dart';
 import '../../features/client/presentation/appointments_screen.dart';
+import '../../features/client/presentation/services_screen.dart';
 import '../../features/hairstylist/presentation/hairstylist_home_screen.dart';
 import '../../domain/models/peluquero.dart';
 
@@ -58,6 +59,10 @@ class AppRouter {
       GoRoute(
         path: AppRoutes.clientHome,
         builder: (context, state) => const ClientHomeScreen(),
+      ),
+      GoRoute(
+        path: AppRoutes.services,
+        builder: (context, state) => const ServicesScreen(),
       ),
       GoRoute(
         path: '/appointments',

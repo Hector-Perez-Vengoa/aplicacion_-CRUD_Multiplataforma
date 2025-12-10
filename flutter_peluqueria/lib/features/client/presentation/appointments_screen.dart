@@ -11,8 +11,35 @@ class AppointmentsScreen extends ConsumerWidget {
     final appointmentsAsync = ref.watch(appointmentProviderProvider);
 
     return Scaffold(
+      backgroundColor: Colors.grey.shade50,
       appBar: AppBar(
-        title: const Text('Mis citas'),
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back),
+          onPressed: () {
+            if (GoRouter.of(context).canPop()) {
+              context.pop();
+            } else {
+              context.go('/home');
+            }
+          },
+        ),
+        title: Row(
+          children: [
+            Icon(
+              Icons.calendar_today,
+              color: Theme.of(context).colorScheme.secondary,
+            ),
+            const SizedBox(width: 8),
+            const Text('MIS CITAS'),
+          ],
+        ),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.home),
+            onPressed: () => context.go('/home'),
+          ),
+        ],
+        centerTitle: false,
       ),
       body: appointmentsAsync.when(
         data: (appointments) {
@@ -21,13 +48,35 @@ class AppointmentsScreen extends ConsumerWidget {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  const Icon(Icons.calendar_today, size: 64, color: Colors.grey),
-                  const SizedBox(height: 16),
-                  const Text('No tienes citas agendadas'),
-                  const SizedBox(height: 16),
-                  ElevatedButton(
+                  Container(
+                    padding: const EdgeInsets.all(24),
+                    decoration: BoxDecoration(
+                      color: Theme.of(context).colorScheme.secondary.withValues(alpha: 0.1),
+                      shape: BoxShape.circle,
+                    ),
+                    child: Icon(
+                      Icons.calendar_today,
+                      size: 80,
+                      color: Theme.of(context).colorScheme.primary,
+                    ),
+                  ),
+                  const SizedBox(height: 24),
+                  Text(
+                    'No tienes citas agendadas',
+                    style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    'Agenda tu primera cita con nosotros',
+                    style: TextStyle(color: Colors.grey[600]),
+                  ),
+                  const SizedBox(height: 24),
+                  ElevatedButton.icon(
                     onPressed: () => context.go('/home'),
-                    child: const Text('Agendar cita'),
+                    icon: const Icon(Icons.add),
+                    label: const Text('Agendar cita'),
                   ),
                 ],
               ),
@@ -40,43 +89,86 @@ class AppointmentsScreen extends ConsumerWidget {
             itemBuilder: (context, index) {
               final appointment = appointments[index];
               return Card(
-                margin: const EdgeInsets.only(bottom: 12),
+                margin: const EdgeInsets.only(bottom: 16),
+                elevation: 2,
                 child: Padding(
-                  padding: const EdgeInsets.all(16),
+                  padding: const EdgeInsets.all(20),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          Text(
-                            'Cita #${appointment.id.substring(0, 8)}',
-                            style: Theme.of(context).textTheme.titleSmall,
+                          Row(
+                            children: [
+                              Container(
+                                padding: const EdgeInsets.all(8),
+                                decoration: BoxDecoration(
+                                  color: Theme.of(context).colorScheme.secondary.withValues(alpha: 0.2),
+                                  borderRadius: BorderRadius.circular(8),
+                                ),
+                                child: Icon(
+                                  Icons.event,
+                                  color: Theme.of(context).colorScheme.primary,
+                                  size: 20,
+                                ),
+                              ),
+                              const SizedBox(width: 12),
+                              Text(
+                                'Cita #${appointment.id.substring(0, 8)}',
+                                style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                            ],
                           ),
                           _StatusBadge(status: appointment.estado),
                         ],
                       ),
+                      const SizedBox(height: 16),
+                      
+                      // Info de la cita
+                      _InfoRow(
+                        icon: Icons.calendar_today,
+                        label: 'Fecha',
+                        value: '${appointment.fechaInicio.day}/${appointment.fechaInicio.month}/${appointment.fechaInicio.year}',
+                      ),
                       const SizedBox(height: 8),
-                          Text(
-                            'Fecha: ${appointment.fechaInicio.day}/${appointment.fechaInicio.month}/${appointment.fechaInicio.year}',
-                          ),
-                          Text('Servicio: ${appointment.servicio}'),
-                          Text('Peluquero: ${appointment.peluquero}'),
-                      const SizedBox(height: 4),
-                      Text('Hora: ${appointment.fechaInicio.hour}:${appointment.fechaInicio.minute.toString().padLeft(2, '0')}'),
-                      const SizedBox(height: 12),
-                      if (appointment.estado == 'confirmada')
-                        ElevatedButton.icon(
-                          onPressed: () {
-                            _showCancelDialog(context, ref, appointment.id);
-                          },
-                          icon: const Icon(Icons.close),
-                          label: const Text('Cancelar cita'),
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: Colors.red,
-                            foregroundColor: Colors.white,
+                      _InfoRow(
+                        icon: Icons.access_time,
+                        label: 'Hora',
+                        value: '${appointment.fechaInicio.hour}:${appointment.fechaInicio.minute.toString().padLeft(2, '0')}',
+                      ),
+                      const SizedBox(height: 8),
+                      _InfoRow(
+                        icon: Icons.content_cut,
+                        label: 'Servicio',
+                        value: appointment.servicio,
+                      ),
+                      const SizedBox(height: 8),
+                      _InfoRow(
+                        icon: Icons.person,
+                        label: 'Peluquero',
+                        value: appointment.peluquero,
+                      ),
+                      
+                      if (appointment.estado == 'confirmada') ...[
+                        const SizedBox(height: 16),
+                        SizedBox(
+                          width: double.infinity,
+                          child: OutlinedButton.icon(
+                            onPressed: () {
+                              _showCancelDialog(context, ref, appointment.id);
+                            },
+                            icon: const Icon(Icons.close),
+                            label: const Text('Cancelar cita'),
+                            style: OutlinedButton.styleFrom(
+                              foregroundColor: Colors.red,
+                              side: const BorderSide(color: Colors.red),
+                            ),
                           ),
                         ),
+                      ],
                     ],
                   ),
                 ),
@@ -85,13 +177,80 @@ class AppointmentsScreen extends ConsumerWidget {
           );
         },
         loading: () => const Center(child: CircularProgressIndicator()),
-        error: (error, _) => Center(child: Text('Error: $error')),
+        error: (error, _) => Center(
+          child: Padding(
+            padding: const EdgeInsets.all(24),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Icon(
+                  Icons.error_outline,
+                  size: 64,
+                  color: Theme.of(context).colorScheme.error,
+                ),
+                const SizedBox(height: 16),
+                Text(
+                  'Error al cargar las citas',
+                  style: Theme.of(context).textTheme.titleLarge,
+                ),
+                const SizedBox(height: 8),
+                Text(
+                  error.toString(),
+                  textAlign: TextAlign.center,
+                  style: TextStyle(color: Colors.grey[600]),
+                ),
+              ],
+            ),
+          ),
+        ),
       ),
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () => context.go('/home'),
         icon: const Icon(Icons.add),
         label: const Text('Nueva cita'),
       ),
+    );
+  }
+}
+
+class _InfoRow extends StatelessWidget {
+  final IconData icon;
+  final String label;
+  final String value;
+
+  const _InfoRow({
+    required this.icon,
+    required this.label,
+    required this.value,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      children: [
+        Icon(
+          icon,
+          size: 18,
+          color: Colors.grey[600],
+        ),
+        const SizedBox(width: 8),
+        Text(
+          '$label: ',
+          style: TextStyle(
+            color: Colors.grey[600],
+            fontSize: 14,
+          ),
+        ),
+        Expanded(
+          child: Text(
+            value,
+            style: const TextStyle(
+              fontWeight: FontWeight.w600,
+              fontSize: 14,
+            ),
+          ),
+        ),
+      ],
     );
   }
 }
@@ -105,39 +264,55 @@ class _StatusBadge extends StatelessWidget {
   Widget build(BuildContext context) {
     final Color color;
     final String label;
+    final IconData icon;
 
     switch (status) {
       case 'confirmada':
         color = Colors.green;
         label = 'Confirmada';
+        icon = Icons.check_circle;
         break;
       case 'cancelada':
         color = Colors.red;
         label = 'Cancelada';
+        icon = Icons.cancel;
         break;
       case 'completada':
         color = Colors.blue;
         label = 'Completada';
+        icon = Icons.verified;
         break;
       default:
         color = Colors.grey;
         label = status;
+        icon = Icons.info;
     }
 
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
       decoration: BoxDecoration(
-        color: color.withValues(alpha: 0.2),
+        color: color.withValues(alpha: 0.15),
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: color),
+        border: Border.all(color: color, width: 1.5),
       ),
-      child: Text(
-        label,
-        style: TextStyle(
-          color: color,
-          fontWeight: FontWeight.bold,
-          fontSize: 12,
-        ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(
+            icon,
+            color: color,
+            size: 16,
+          ),
+          const SizedBox(width: 6),
+          Text(
+            label,
+            style: TextStyle(
+              color: color,
+              fontWeight: FontWeight.bold,
+              fontSize: 12,
+            ),
+          ),
+        ],
       ),
     );
   }
