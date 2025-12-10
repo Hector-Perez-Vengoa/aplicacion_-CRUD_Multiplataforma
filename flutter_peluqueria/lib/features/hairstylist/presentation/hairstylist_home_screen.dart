@@ -21,16 +21,10 @@ class HairstylistHomeScreen extends ConsumerWidget {
                 onPressed: () => context.pop(),
               )
             : null,
-        title: Row(
-          children: [
-            Icon(
-              Icons.content_cut,
-              color: Theme.of(context).colorScheme.secondary,
-            ),
-            const SizedBox(width: 8),
-            const Text('PANEL PELUQUERO'),
-          ],
-        ),
+        title: const Text('Panel Peluquero'),
+        backgroundColor: Theme.of(context).colorScheme.primary,
+        foregroundColor: Colors.white,
+        elevation: 0,
         actions: [
           IconButton(
             icon: const Icon(Icons.logout),
@@ -220,17 +214,22 @@ class HairstylistHomeScreen extends ConsumerWidget {
                       height: 56,
                       child: ElevatedButton.icon(
                         onPressed: () => context.go('/hairstylist/agenda'),
-                        icon: const Icon(Icons.calendar_month, size: 24),
+                        icon: const Icon(Icons.calendar_month, size: 20),
                         label: const Text(
-                          'VER AGENDA COMPLETA',
+                          'Ver agenda completa',
                           style: TextStyle(
                             fontSize: 16,
-                            fontWeight: FontWeight.bold,
-                            letterSpacing: 1,
+                            fontWeight: FontWeight.w600,
                           ),
                         ),
                         style: ElevatedButton.styleFrom(
-                          elevation: 2,
+                          backgroundColor: Theme.of(context).colorScheme.secondary,
+                          foregroundColor: Colors.white,
+                          elevation: 4,
+                          shadowColor: Theme.of(context).colorScheme.secondary.withValues(alpha: 0.5),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
                         ),
                       ),
                     ),

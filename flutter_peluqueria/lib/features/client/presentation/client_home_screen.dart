@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../../features/auth/application/auth_provider.dart';
+import '../../../core/widgets/floating_notification.dart';
 import '../application/appointment_provider.dart';
 import '../application/service_provider.dart';
 
@@ -23,11 +24,11 @@ class _ClientHomeScreenState extends ConsumerState<ClientHomeScreen> {
       canPop: false,
       onPopInvokedWithResult: (didPop, result) {
         if (didPop) return;
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Usa el botón de logout para salir'),
-            duration: Duration(seconds: 1),
-          ),
+        showFloatingNotification(
+          context,
+          message: 'Usa el botón de logout para salir',
+          icon: Icons.logout,
+          duration: const Duration(seconds: 2),
         );
       },
       child: Scaffold(

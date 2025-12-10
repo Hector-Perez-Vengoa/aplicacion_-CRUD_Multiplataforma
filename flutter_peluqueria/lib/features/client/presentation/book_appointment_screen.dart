@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import '../../../core/widgets/floating_notification.dart';
 import '../../../domain/models/peluquero.dart';
 import '../../../domain/models/servicio.dart';
 import '../application/service_provider.dart';
@@ -63,8 +64,12 @@ class _BookAppointmentScreenState extends ConsumerState<BookAppointmentScreen> {
 
   Future<void> _submitBooking() async {
     if (selectedHairstylist == null || selectedService == null || selectedDate == null || selectedTime == null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Por favor completa todos los campos')),
+      await showFloatingNotification(
+        context,
+        title: 'Campos requeridos',
+        message: 'Por favor completa todos los campos',
+        icon: Icons.info_outline,
+        color: Colors.orange.shade50,
       );
       return;
     }
@@ -110,17 +115,27 @@ class _BookAppointmentScreenState extends ConsumerState<BookAppointmentScreen> {
           .timeout(const Duration(seconds: 8));
 
       if (mounted) {
-        if (navigator.canPop()) navigator.pop(); // Cerrar loading
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('¡Cita agendada exitosamente!')),
+        if (navigator.canPop()) navigator.pop();
+        await showFloatingNotification(
+          context,
+          title: 'Éxito',
+          message: '¡Cita agendada exitosamente!',
+          icon: Icons.check_circle_outline,
+          color: Colors.green.shade50,
+          duration: const Duration(seconds: 2),
         );
-        context.go('/appointments');
+        if (mounted) context.go('/appointments');
       }
     } catch (e) {
-      if (navigator.canPop()) navigator.pop(); // Cerrar loading
+      if (navigator.canPop()) navigator.pop();
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error: $e')),
+        await showFloatingNotification(
+          context,
+          title: 'Error',
+          message: 'Error al agendar cita: $e',
+          icon: Icons.error_outline,
+          color: Colors.red.shade50,
+          duration: const Duration(seconds: 3),
         );
       }
     }

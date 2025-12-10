@@ -1,6 +1,8 @@
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import '../../../core/widgets/floating_notification.dart';
 import '../../../domain/models/cita.dart';
 import '../application/appointment_provider.dart';
 import '../application/service_provider.dart';
@@ -101,8 +103,12 @@ class _EditAppointmentScreenState extends ConsumerState<EditAppointmentScreen> {
 
   Future<void> _updateAppointment() async {
     if (_selectedPeluqueroId == null || _selectedServicioId == null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Por favor selecciona peluquero y servicio')),
+      await showFloatingNotification(
+        context,
+        title: 'Falta información',
+        message: 'Por favor selecciona peluquero y servicio',
+        icon: Icons.info_outline,
+        color: Colors.orange.shade50,
       );
       return;
     }
@@ -130,8 +136,12 @@ class _EditAppointmentScreenState extends ConsumerState<EditAppointmentScreen> {
         _notesController.text != (widget.cita.notasCliente ?? '');
 
     if (!hasChanges) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('No hay cambios para guardar')),
+      await showFloatingNotification(
+        context,
+        title: 'Sin cambios',
+        message: 'No hay cambios para guardar',
+        icon: Icons.info_outline,
+        color: Colors.blue.shade50,
       );
       return;
     }
@@ -148,21 +158,38 @@ class _EditAppointmentScreenState extends ConsumerState<EditAppointmentScreen> {
       await ref.read(updateAppointmentNotifierProvider.notifier).updateAppointment(request);
       
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Cita actualizada exitosamente'),
-            backgroundColor: Colors.green,
-          ),
+        await showFloatingNotification(
+          context,
+          title: 'Cita actualizada',
+          message: 'Cita actualizada exitosamente',
+          icon: Icons.check_circle_outline,
+          color: Colors.green.shade50,
+          duration: const Duration(seconds: 2),
         );
+        if (!mounted) return;
         context.pop();
       }
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Error al actualizar cita: ${e.toString()}'),
-            backgroundColor: Colors.red,
-          ),
+        String errorMessage = 'Error al actualizar cita';
+        if (e is DioException) {
+          final data = e.response?.data;
+          if (data is Map && data['error'] is Map && data['error']['message'] is String) {
+            errorMessage = data['error']['message'] as String;
+          } else if (e.message != null) {
+            errorMessage = e.message!;
+          }
+        } else {
+          errorMessage = e.toString();
+        }
+
+        await showFloatingNotification(
+          context,
+          title: 'Error',
+          message: errorMessage,
+          icon: Icons.error_outline,
+          color: Colors.red.shade50,
+          duration: const Duration(seconds: 3),
         );
       }
     }
