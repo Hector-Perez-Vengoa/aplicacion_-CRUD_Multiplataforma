@@ -305,13 +305,6 @@ class AppointmentsScreen extends ConsumerWidget {
           ),
         ),
       ),
-      floatingActionButton: FloatingActionButton.extended(
-        onPressed: () => context.go('/book-appointment'),
-        icon: const Icon(Icons.add),
-        label: const Text('Nueva cita'),
-        backgroundColor: Theme.of(context).colorScheme.secondary,
-        foregroundColor: Colors.black,
-      ),
     );
   }
 }

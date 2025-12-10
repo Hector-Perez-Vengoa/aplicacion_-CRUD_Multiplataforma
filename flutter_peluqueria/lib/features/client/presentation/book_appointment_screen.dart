@@ -76,8 +76,7 @@ class _BookAppointmentScreenState extends ConsumerState<BookAppointmentScreen> {
         context,
         title: 'Campos requeridos',
         message: 'Por favor completa todos los campos',
-        icon: Icons.info_outline,
-        color: Colors.orange.shade50,
+        type: NotificationType.warning,
       );
       return;
     }
@@ -112,9 +111,8 @@ class _BookAppointmentScreenState extends ConsumerState<BookAppointmentScreen> {
           context,
           title: 'Éxito',
           message: '¡Cita agendada exitosamente!',
-          icon: Icons.check_circle_outline,
-          color: Colors.green.shade50,
-          duration: const Duration(seconds: 2),
+          type: NotificationType.success,
+          duration: const Duration(seconds: 3),
         );
         if (mounted) context.go('/appointments');
       }
@@ -125,8 +123,8 @@ class _BookAppointmentScreenState extends ConsumerState<BookAppointmentScreen> {
           context,
           title: 'Error',
           message: 'Error al agendar cita: $e',
-          icon: Icons.error_outline,
-          color: Colors.red.shade50,
+          type: NotificationType.error,
+          duration: const Duration(seconds: 4),
         );
       }
     }

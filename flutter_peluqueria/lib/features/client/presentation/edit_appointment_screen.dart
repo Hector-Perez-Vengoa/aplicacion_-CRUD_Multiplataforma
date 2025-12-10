@@ -108,8 +108,7 @@ class _EditAppointmentScreenState extends ConsumerState<EditAppointmentScreen> {
         context,
         title: 'Falta información',
         message: 'Por favor selecciona peluquero y servicio',
-        icon: Icons.info_outline,
-        color: Colors.orange.shade50,
+        type: NotificationType.warning,
       );
       return;
     }
@@ -141,8 +140,7 @@ class _EditAppointmentScreenState extends ConsumerState<EditAppointmentScreen> {
         context,
         title: 'Sin cambios',
         message: 'No hay cambios para guardar',
-        icon: Icons.info_outline,
-        color: Colors.blue.shade50,
+        type: NotificationType.info,
       );
       return;
     }
@@ -163,9 +161,8 @@ class _EditAppointmentScreenState extends ConsumerState<EditAppointmentScreen> {
           context,
           title: 'Cita actualizada',
           message: 'Cita actualizada exitosamente',
-          icon: Icons.check_circle_outline,
-          color: Colors.green.shade50,
-          duration: const Duration(seconds: 2),
+          type: NotificationType.success,
+          duration: const Duration(seconds: 3),
         );
         if (!mounted) return;
         context.pop();
@@ -188,9 +185,8 @@ class _EditAppointmentScreenState extends ConsumerState<EditAppointmentScreen> {
           context,
           title: 'Error',
           message: errorMessage,
-          icon: Icons.error_outline,
-          color: Colors.red.shade50,
-          duration: const Duration(seconds: 3),
+          type: NotificationType.error,
+          duration: const Duration(seconds: 4),
         );
       }
     }
