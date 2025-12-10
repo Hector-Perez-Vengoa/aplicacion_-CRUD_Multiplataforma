@@ -4,22 +4,6 @@ import 'package:go_router/go_router.dart';
 import '../application/appointment_provider.dart';
 import '../../../core/widgets/floating_notification.dart';
 
-const _fallbackBarberImage =
-    'https://images.unsplash.com/photo-1524504388940-b1c1722653e1?auto=format&fit=crop&w=800&q=80';
-String _getBarberImage(String name) {
-  final lower = name.toLowerCase();
-  if (lower.contains('mark')) {
-    return 'https://images.unsplash.com/photo-1524504388940-b1c1722653e1?auto=format&fit=crop&w=800&q=80';
-  }
-  if (lower.contains('adam')) {
-    return 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=800&q=80';
-  }
-  if (lower.contains('john') || lower.contains('juan')) {
-    return 'https://images.unsplash.com/photo-1524504388940-b1c1722653e1?auto=format&fit=crop&w=800&q=80';
-  }
-  return _fallbackBarberImage;
-}
-
 class AppointmentsScreen extends ConsumerWidget {
   const AppointmentsScreen({super.key});
 
@@ -35,57 +19,59 @@ class AppointmentsScreen extends ConsumerWidget {
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 Container(
-                  padding: const EdgeInsets.all(24),
+                  padding: const EdgeInsets.all(32),
                   decoration: BoxDecoration(
                     gradient: LinearGradient(
                       begin: Alignment.topLeft,
                       end: Alignment.bottomRight,
                       colors: [
-                        Theme.of(context).colorScheme.primary.withValues(alpha: 0.1),
-                        Theme.of(context).colorScheme.secondary.withValues(alpha: 0.1),
+                        const Color(0xFFD4AF37).withValues(alpha: 0.15),
+                        const Color(0xFFD4AF37).withValues(alpha: 0.05),
                       ],
                     ),
                     shape: BoxShape.circle,
+                    border: Border.all(
+                      color: const Color(0xFFD4AF37).withValues(alpha: 0.3),
+                      width: 2,
+                    ),
                   ),
-                  child: Container(
-                    padding: const EdgeInsets.all(16),
-                    decoration: BoxDecoration(
-                      color: Colors.white.withValues(alpha: 0.6),
-                      shape: BoxShape.circle,
-                    ),
-                    child: Icon(
-                      Icons.calendar_today,
-                      size: 80,
-                      color: Theme.of(context).colorScheme.primary,
-                    ),
+                  child: Icon(
+                    Icons.calendar_month_outlined,
+                    size: 80,
+                    color: const Color(0xFFD4AF37),
                   ),
                 ),
-                const SizedBox(height: 24),
-                Text(
+                const SizedBox(height: 28),
+                const Text(
                   'No tienes citas agendadas',
-                  style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-                const SizedBox(height: 8),
-                Text(
-                  'Agenda tu primera cita con nosotros hoy',
                   style: TextStyle(
-                    color: Colors.grey[600],
-                    fontSize: 16,
+                    color: Colors.white,
+                    fontWeight: FontWeight.w800,
+                    fontSize: 22,
+                    letterSpacing: 0.3,
                   ),
                 ),
-                const SizedBox(height: 32),
+                const SizedBox(height: 12),
+                Text(
+                  'Reserva tu próximo corte ahora',
+                  style: TextStyle(
+                    color: Colors.white.withValues(alpha: 0.7),
+                    fontSize: 15,
+                  ),
+                ),
+                const SizedBox(height: 36),
                 ElevatedButton.icon(
                   onPressed: () => context.go('/home'),
-                  icon: const Icon(Icons.add),
-                  label: const Text('Agendar cita'),
+                  icon: const Icon(Icons.add_circle, size: 20),
+                  label: const Text('Agendar Cita'),
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: Theme.of(context).colorScheme.secondary,
+                    backgroundColor: const Color(0xFFD4AF37),
                     foregroundColor: Colors.black,
-                    padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 12),
+                    padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 16),
+                    elevation: 8,
+                    shadowColor: const Color(0xFFD4AF37).withValues(alpha: 0.5),
                     shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
+                      borderRadius: BorderRadius.circular(14),
                     ),
                   ),
                 )
@@ -113,7 +99,7 @@ class AppointmentsScreen extends ConsumerWidget {
           children: [
             // Citas Confirmadas
             if (confirmadas.isNotEmpty) ...[
-              _SectionHeader(title: 'Confirmadas', count: confirmadas.length, color: Colors.green),
+              _SectionHeader(title: 'Confirmadas', count: confirmadas.length, color: const Color(0xFFD4AF37)),
               ...confirmadas.map((a) => _PremiumAppointmentCard(
                 appointment: a,
                 onEdit: () {
@@ -128,7 +114,7 @@ class AppointmentsScreen extends ConsumerWidget {
 
             // Citas Pendientes
             if (pendientes.isNotEmpty) ...[
-              _SectionHeader(title: 'Pendientes', count: pendientes.length, color: Colors.orange),
+              _SectionHeader(title: 'Pendientes', count: pendientes.length, color: Colors.white.withValues(alpha: 0.7)),
               ...pendientes.map((a) => _PremiumAppointmentCard(
                 appointment: a,
                 onEdit: () {
@@ -143,7 +129,7 @@ class AppointmentsScreen extends ConsumerWidget {
 
             // Citas Completadas
             if (completadas.isNotEmpty) ...[
-              _SectionHeader(title: 'Completadas', count: completadas.length, color: Colors.blue),
+              _SectionHeader(title: 'Completadas', count: completadas.length, color: const Color(0xFFD4AF37)),
               ...completadas.map((a) => _PremiumAppointmentCard(
                 appointment: a,
                 onEdit: null,
@@ -156,7 +142,7 @@ class AppointmentsScreen extends ConsumerWidget {
 
             // Citas Canceladas
             if (canceladas.isNotEmpty) ...[
-              _SectionHeader(title: 'Canceladas', count: canceladas.length, color: Colors.red),
+              _SectionHeader(title: 'Canceladas', count: canceladas.length, color: Colors.white.withValues(alpha: 0.5)),
               ...canceladas.map((a) => _PremiumAppointmentCard(
                 appointment: a,
                 onEdit: null,
@@ -238,53 +224,76 @@ class _SectionHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 10),
+    return Container(
+      margin: const EdgeInsets.only(bottom: 14),
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(
+          color: color.withValues(alpha: 0.5),
+          width: 1.5,
+        ),
+      ),
       child: Row(
         children: [
           Container(
-            width: 6,
-            height: 28,
+            padding: const EdgeInsets.all(10),
             decoration: BoxDecoration(
-              color: color,
               borderRadius: BorderRadius.circular(12),
+              border: Border.all(
+                color: color.withValues(alpha: 0.5),
+                width: 1.5,
+              ),
+            ),
+            child: Icon(
+              _getSectionIcon(title),
+              color: color,
+              size: 22,
             ),
           ),
-          const SizedBox(width: 12),
+          const SizedBox(width: 14),
           Expanded(
-            child: Row(
-              children: [
-                Text(
-                  title,
-                  style: const TextStyle(
-                    color: Colors.white,
-                    fontSize: 18,
-                    fontWeight: FontWeight.w800,
-                  ),
-                ),
-                const SizedBox(width: 8),
-                Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-                  decoration: BoxDecoration(
-                    color: Colors.white.withValues(alpha: 0.08),
-                    borderRadius: BorderRadius.circular(12),
-                    border: Border.all(color: Colors.white.withValues(alpha: 0.12)),
-                  ),
-                  child: Text(
-                    '$count',
-                    style: const TextStyle(
-                      color: Colors.white,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                ),
-              ],
+            child: Text(
+              title,
+              style: const TextStyle(
+                color: Colors.white,
+                fontSize: 19,
+                fontWeight: FontWeight.w800,
+                letterSpacing: 0.3,
+              ),
             ),
           ),
-          Icon(Icons.chevron_right, color: Colors.white.withValues(alpha: 0.6)),
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 7),
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(20),
+              border: Border.all(
+                color: color.withValues(alpha: 0.5),
+                width: 1.5,
+              ),
+            ),
+            child: Text(
+              '$count',
+              style: TextStyle(
+                color: color,
+                fontWeight: FontWeight.w800,
+                fontSize: 15,
+              ),
+            ),
+          ),
         ],
       ),
     );
+  }
+
+  IconData _getSectionIcon(String title) {
+    return switch (title.toLowerCase()) {
+      'confirmadas' => Icons.check_circle,
+      'pendientes' => Icons.schedule,
+      'completadas' => Icons.verified,
+      'canceladas' => Icons.cancel,
+      _ => Icons.event,
+    };
   }
 }
 
@@ -301,11 +310,11 @@ class _PremiumAppointmentCard extends StatelessWidget {
 
   Color _getStatusColor(String status) {
     return switch (status.toLowerCase()) {
-      'confirmada' => Colors.green,
-      'cancelada' => Colors.red,
-      'completada' => Colors.blue,
-      'pendiente' => Colors.orange,
-      _ => Colors.grey,
+      'confirmada' => const Color(0xFFD4AF37),
+      'cancelada' => Colors.white.withValues(alpha: 0.5),
+      'completada' => const Color(0xFFD4AF37),
+      'pendiente' => Colors.white.withValues(alpha: 0.7),
+      _ => Colors.white.withValues(alpha: 0.6),
     };
   }
 
@@ -326,73 +335,56 @@ class _PremiumAppointmentCard extends StatelessWidget {
       '${appointment.fechaInicio.day.toString().padLeft(2, '0')}/${appointment.fechaInicio.month.toString().padLeft(2, '0')}/${appointment.fechaInicio.year}';
     final formattedTime =
       '${appointment.fechaInicio.hour.toString().padLeft(2, '0')}:${appointment.fechaInicio.minute.toString().padLeft(2, '0')}';
-    final barberImage = _getBarberImage(appointment.peluquero ?? 'Barber');
 
     return Container(
-      margin: const EdgeInsets.only(bottom: 14),
+      margin: const EdgeInsets.only(bottom: 16),
       decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(18),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.45),
-            blurRadius: 18,
-            offset: const Offset(0, 10),
-          ),
-        ],
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(
+          color: statusColor.withValues(alpha: 0.5),
+          width: 1.5,
+        ),
       ),
       child: ClipRRect(
-        borderRadius: BorderRadius.circular(18),
-        child: Stack(
+        borderRadius: BorderRadius.circular(20),
+        child: Column(
           children: [
-            Positioned.fill(
-              child: Image.network(
-                barberImage,
-                fit: BoxFit.cover,
-                color: Colors.black.withValues(alpha: 0.45),
-                colorBlendMode: BlendMode.darken,
-              ),
-            ),
-            Positioned.fill(
-              child: Container(
-                decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
-                    colors: [
-                      Colors.black.withValues(alpha: 0.65),
-                      Colors.black.withValues(alpha: 0.35),
-                    ],
-                  ),
-                ),
-              ),
-            ),
-            Positioned(
-              top: 0,
-              left: 0,
-              right: 0,
-              child: Container(
-                height: 5,
-                decoration: BoxDecoration(
-                  color: statusColor,
-                  borderRadius: const BorderRadius.only(
-                    topLeft: Radius.circular(18),
-                    topRight: Radius.circular(18),
-                  ),
+            // Header con barra de color
+            Container(
+              height: 4,
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  colors: [
+                    statusColor.withValues(alpha: 0.6),
+                    statusColor,
+                    statusColor.withValues(alpha: 0.6),
+                  ],
                 ),
               ),
             ),
             Padding(
-              padding: const EdgeInsets.all(16),
+              padding: const EdgeInsets.all(18),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Row(
                     children: [
-                      CircleAvatar(
-                        radius: 22,
-                        backgroundImage: NetworkImage(barberImage),
+                      Container(
+                        padding: const EdgeInsets.all(12),
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(14),
+                          border: Border.all(
+                            color: const Color(0xFFD4AF37).withValues(alpha: 0.5),
+                            width: 1.5,
+                          ),
+                        ),
+                        child: Icon(
+                          Icons.content_cut,
+                          color: const Color(0xFFD4AF37),
+                          size: 24,
+                        ),
                       ),
-                      const SizedBox(width: 12),
+                      const SizedBox(width: 14),
                       Expanded(
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
@@ -402,29 +394,42 @@ class _PremiumAppointmentCard extends StatelessWidget {
                               style: const TextStyle(
                                 color: Colors.white,
                                 fontWeight: FontWeight.w800,
-                                fontSize: 16,
-                                letterSpacing: 0.2,
+                                fontSize: 17,
+                                letterSpacing: 0.3,
                               ),
-                              maxLines: 2,
+                              maxLines: 1,
                               overflow: TextOverflow.ellipsis,
                             ),
-                            const SizedBox(height: 4),
-                            Text(
-                              'Cita #${appointment.id.substring(0, 8)}',
-                              style: TextStyle(
-                                fontSize: 12,
-                                color: Colors.white.withValues(alpha: 0.7),
-                              ),
+                            const SizedBox(height: 6),
+                            Row(
+                              children: [
+                                Icon(
+                                  Icons.person_outline,
+                                  size: 14,
+                                  color: Colors.white.withValues(alpha: 0.7),
+                                ),
+                                const SizedBox(width: 4),
+                                Text(
+                                  appointment.peluquero,
+                                  style: TextStyle(
+                                    fontSize: 13,
+                                    color: Colors.white.withValues(alpha: 0.7),
+                                    fontWeight: FontWeight.w500,
+                                  ),
+                                ),
+                              ],
                             ),
                           ],
                         ),
                       ),
                       Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                         decoration: BoxDecoration(
-                          color: statusColor.withValues(alpha: 0.18),
-                          borderRadius: BorderRadius.circular(20),
-                          border: Border.all(color: statusColor.withValues(alpha: 0.6), width: 1),
+                          borderRadius: BorderRadius.circular(12),
+                          border: Border.all(
+                            color: statusColor.withValues(alpha: 0.6),
+                            width: 1.5,
+                          ),
                         ),
                         child: Row(
                           mainAxisSize: MainAxisSize.min,
@@ -432,15 +437,16 @@ class _PremiumAppointmentCard extends StatelessWidget {
                             Icon(
                               _getStatusIcon(appointment.estado),
                               color: statusColor,
-                              size: 14,
+                              size: 16,
                             ),
-                            const SizedBox(width: 4),
+                            const SizedBox(width: 6),
                             Text(
                               appointment.estado,
                               style: TextStyle(
-                                color: Colors.white,
-                                fontWeight: FontWeight.bold,
-                                fontSize: 11,
+                                color: statusColor,
+                                fontWeight: FontWeight.w800,
+                                fontSize: 12,
+                                letterSpacing: 0.3,
                               ),
                             ),
                           ],
@@ -449,97 +455,214 @@ class _PremiumAppointmentCard extends StatelessWidget {
                     ],
                   ),
 
-                  const SizedBox(height: 14),
+                  const SizedBox(height: 18),
 
+                  // Información de fecha y hora
                   Row(
                     children: [
                       Expanded(
-                        child: _InfoItem(
-                          icon: Icons.calendar_today,
-                          label: 'Fecha',
-                          value: formattedDate,
-                          color: Colors.white,
+                        child: Container(
+                          padding: const EdgeInsets.all(12),
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(12),
+                            border: Border.all(
+                              color: Colors.white.withValues(alpha: 0.3),
+                              width: 1.5,
+                            ),
+                          ),
+                          child: Row(
+                            children: [
+                              Icon(
+                                Icons.calendar_today,
+                                size: 18,
+                                color: const Color(0xFFD4AF37),
+                              ),
+                              const SizedBox(width: 10),
+                              Expanded(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      'Fecha',
+                                      style: TextStyle(
+                                        fontSize: 11,
+                                        color: Colors.white.withValues(alpha: 0.6),
+                                        fontWeight: FontWeight.w600,
+                                      ),
+                                    ),
+                                    const SizedBox(height: 2),
+                                    Text(
+                                      formattedDate,
+                                      style: const TextStyle(
+                                        fontSize: 14,
+                                        color: Colors.white,
+                                        fontWeight: FontWeight.w700,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ],
+                          ),
                         ),
                       ),
                       const SizedBox(width: 12),
                       Expanded(
-                        child: _InfoItem(
-                          icon: Icons.access_time,
-                          label: 'Hora',
-                          value: formattedTime,
-                          color: Colors.white,
+                        child: Container(
+                          padding: const EdgeInsets.all(12),
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(12),
+                            border: Border.all(
+                              color: Colors.white.withValues(alpha: 0.3),
+                              width: 1.5,
+                            ),
+                          ),
+                          child: Row(
+                            children: [
+                              Icon(
+                                Icons.access_time,
+                                size: 18,
+                                color: const Color(0xFFD4AF37),
+                              ),
+                              const SizedBox(width: 10),
+                              Expanded(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      'Hora',
+                                      style: TextStyle(
+                                        fontSize: 11,
+                                        color: Colors.white.withValues(alpha: 0.6),
+                                        fontWeight: FontWeight.w600,
+                                      ),
+                                    ),
+                                    const SizedBox(height: 2),
+                                    Text(
+                                      formattedTime,
+                                      style: const TextStyle(
+                                        fontSize: 14,
+                                        color: Colors.white,
+                                        fontWeight: FontWeight.w700,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ],
+                          ),
                         ),
                       ),
                     ],
                   ),
 
-                  const SizedBox(height: 12),
+                  const SizedBox(height: 16),
 
-                  Row(
-                    children: [
-                      Expanded(
-                        child: _InfoItem(
-                          icon: Icons.person,
-                          label: 'Peluquero',
-                          value: appointment.peluquero,
-                          color: Colors.white,
-                        ),
-                      ),
-                    ],
-                  ),
-
-                  const SizedBox(height: 14),
-
+                  // Divider
                   Container(
                     height: 1,
                     decoration: BoxDecoration(
                       gradient: LinearGradient(
                         colors: [
                           Colors.white.withValues(alpha: 0),
-                          Colors.white.withValues(alpha: 0.25),
+                          Colors.white.withValues(alpha: 0.15),
                           Colors.white.withValues(alpha: 0),
                         ],
                       ),
                     ),
                   ),
 
-                  const SizedBox(height: 12),
+                  const SizedBox(height: 16),
 
+                  // Action buttons
                   if (onEdit != null || onCancel != null)
                     Row(
                       children: [
                         if (onEdit != null)
                           Expanded(
-                            child: ElevatedButton.icon(
-                              onPressed: onEdit,
-                              icon: const Icon(Icons.edit, size: 18),
-                              label: const Text('Editar'),
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor: const Color(0xFFD4AF37),
-                                foregroundColor: Colors.black,
-                                elevation: 4,
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(10),
+                            child: Container(
+                              decoration: BoxDecoration(
+                                gradient: const LinearGradient(
+                                  colors: [Color(0xFFD4AF37), Color(0xFFC49A2C)],
+                                  begin: Alignment.topLeft,
+                                  end: Alignment.bottomRight,
                                 ),
-                                padding: const EdgeInsets.symmetric(vertical: 10),
+                                borderRadius: BorderRadius.circular(12),
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: const Color(0xFFD4AF37).withValues(alpha: 0.4),
+                                    blurRadius: 12,
+                                    offset: const Offset(0, 6),
+                                  ),
+                                ],
+                              ),
+                              child: ElevatedButton.icon(
+                                onPressed: onEdit,
+                                icon: const Icon(Icons.edit_rounded, size: 18),
+                                label: const Text(
+                                  'Editar',
+                                  style: TextStyle(
+                                    fontWeight: FontWeight.w700,
+                                    fontSize: 14,
+                                  ),
+                                ),
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: Colors.transparent,
+                                  foregroundColor: const Color(0xFF0E0E10),
+                                  shadowColor: Colors.transparent,
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(12),
+                                  ),
+                                  padding: const EdgeInsets.symmetric(vertical: 12),
+                                ),
                               ),
                             ),
                           ),
-                        if (onEdit != null && onCancel != null) const SizedBox(width: 10),
+                        if (onEdit != null && onCancel != null) const SizedBox(width: 12),
                         if (onCancel != null)
                           Expanded(
-                            child: ElevatedButton.icon(
-                              onPressed: onCancel,
-                              icon: const Icon(Icons.close, size: 18),
-                              label: const Text('Cancelar'),
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor: Colors.red[500],
-                                foregroundColor: Colors.white,
-                                elevation: 3,
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(10),
+                            child: Container(
+                              decoration: BoxDecoration(
+                                gradient: LinearGradient(
+                                  colors: [
+                                    Colors.white.withValues(alpha: 0.15),
+                                    Colors.white.withValues(alpha: 0.08),
+                                  ],
+                                  begin: Alignment.topLeft,
+                                  end: Alignment.bottomRight,
                                 ),
-                                padding: const EdgeInsets.symmetric(vertical: 10),
+                                borderRadius: BorderRadius.circular(12),
+                                border: Border.all(
+                                  color: Colors.white.withValues(alpha: 0.2),
+                                  width: 1.5,
+                                ),
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: Colors.black.withValues(alpha: 0.3),
+                                    blurRadius: 8,
+                                    offset: const Offset(0, 4),
+                                  ),
+                                ],
+                              ),
+                              child: ElevatedButton.icon(
+                                onPressed: onCancel,
+                                icon: const Icon(Icons.close_rounded, size: 18),
+                                label: const Text(
+                                  'Cancelar',
+                                  style: TextStyle(
+                                    fontWeight: FontWeight.w700,
+                                    fontSize: 14,
+                                  ),
+                                ),
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: Colors.transparent,
+                                  foregroundColor: Colors.white,
+                                  shadowColor: Colors.transparent,
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(12),
+                                  ),
+                                  padding: const EdgeInsets.symmetric(vertical: 12),
+                                ),
                               ),
                             ),
                           ),
@@ -548,14 +671,35 @@ class _PremiumAppointmentCard extends StatelessWidget {
                   else
                     Container(
                       alignment: Alignment.center,
-                      padding: const EdgeInsets.symmetric(vertical: 8),
-                      child: Text(
-                        'Cita ${appointment.estado.toLowerCase()}',
-                        style: TextStyle(
-                          fontSize: 12,
-                          color: Colors.white.withValues(alpha: 0.7),
-                          fontStyle: FontStyle.italic,
+                      padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 16),
+                      decoration: BoxDecoration(
+                        color: Colors.white.withValues(alpha: 0.05),
+                        borderRadius: BorderRadius.circular(12),
+                        border: Border.all(
+                          color: Colors.white.withValues(alpha: 0.1),
+                          width: 1,
                         ),
+                      ),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Icon(
+                            appointment.estado == 'completada' 
+                              ? Icons.check_circle_rounded 
+                              : Icons.info_rounded,
+                            size: 16,
+                            color: Colors.white.withValues(alpha: 0.6),
+                          ),
+                          const SizedBox(width: 8),
+                          Text(
+                            'Cita ${appointment.estado.toLowerCase()}',
+                            style: TextStyle(
+                              fontSize: 13,
+                              color: Colors.white.withValues(alpha: 0.7),
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                        ],
                       ),
                     ),
                 ],
@@ -564,56 +708,6 @@ class _PremiumAppointmentCard extends StatelessWidget {
           ],
         ),
       ),
-    );
-  }
-}
-
-class _InfoItem extends StatelessWidget {
-  final IconData icon;
-  final String label;
-  final String value;
-  final Color color;
-
-  const _InfoItem({
-    required this.icon,
-    required this.label,
-    required this.value,
-    this.color = Colors.white,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Row(
-          children: [
-            Icon(
-              icon,
-              size: 16,
-              color: color.withValues(alpha: 0.9),
-            ),
-            const SizedBox(width: 6),
-            Text(
-              label,
-              style: TextStyle(
-                color: color.withValues(alpha: 0.7),
-                fontSize: 12,
-                fontWeight: FontWeight.w500,
-              ),
-            ),
-          ],
-        ),
-        const SizedBox(height: 4),
-        Text(
-          value,
-          style: const TextStyle(
-            fontWeight: FontWeight.bold,
-            fontSize: 13,
-            color: Colors.white,
-          ),
-        ),
-      ],
     );
   }
 }
