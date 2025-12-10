@@ -3,6 +3,7 @@ import 'package:go_router/go_router.dart';
 import '../../features/auth/presentation/login_screen.dart';
 import '../../features/auth/presentation/register_screen.dart';
 import '../../features/client/presentation/client_home_screen.dart';
+import '../../features/client/presentation/home_screen.dart';
 import '../../features/client/presentation/book_appointment_screen.dart';
 import '../../features/client/presentation/appointments_screen.dart';
 import '../../features/client/presentation/services_screen.dart';
@@ -57,19 +58,32 @@ class AppRouter {
         builder: (context, state) => const Placeholder(), // TODO: OAuthCallbackScreen
       ),
 
-      // Rutas cliente
-      GoRoute(
-        path: AppRoutes.clientHome,
-        builder: (context, state) => const ClientHomeScreen(),
+      // Rutas cliente con Shell (barra de navegación)
+      ShellRoute(
+        builder: (context, state, child) {
+          return ClientHomeScreen(child: child);
+        },
+        routes: [
+          GoRoute(
+            path: AppRoutes.clientHome,
+            builder: (context, state) {
+              return const HomeScreen();
+            },
+          ),
+          GoRoute(
+            path: AppRoutes.services,
+            builder: (context, state) {
+              return const ServicesScreen();
+            },
+          ),
+          GoRoute(
+            path: AppRoutes.appointments,
+            builder: (context, state) => const AppointmentsScreen(),
+          ),
+        ],
       ),
-      GoRoute(
-        path: AppRoutes.services,
-        builder: (context, state) => const ServicesScreen(),
-      ),
-      GoRoute(
-        path: '/appointments',
-        builder: (context, state) => const AppointmentsScreen(),
-      ),
+
+      // Rutas de booking y edición (fuera del shell)
       GoRoute(
         path: '/appointments/new',
         builder: (context, state) {

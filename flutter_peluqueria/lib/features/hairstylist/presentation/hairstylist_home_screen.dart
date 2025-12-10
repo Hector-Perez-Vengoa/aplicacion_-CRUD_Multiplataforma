@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../../features/auth/application/auth_provider.dart';
+import '../../../core/widgets/premium_app_bar.dart';
 import '../application/hairstylist_appointments_provider.dart';
 
 class HairstylistHomeScreen extends ConsumerWidget {
@@ -14,20 +15,14 @@ class HairstylistHomeScreen extends ConsumerWidget {
 
     return Scaffold(
       backgroundColor: Colors.grey.shade50,
-      appBar: AppBar(
-        leading: GoRouter.of(context).canPop()
-            ? IconButton(
-                icon: const Icon(Icons.arrow_back),
-                onPressed: () => context.pop(),
-              )
-            : null,
-        title: const Text('Panel Peluquero'),
-        backgroundColor: Theme.of(context).colorScheme.primary,
-        foregroundColor: Colors.white,
-        elevation: 0,
+      appBar: PremiumAppBarWithIcon(
+        title: 'Panel Peluquero',
+        icon: Icons.content_cut,
+        showBack: GoRouter.of(context).canPop(),
+        onBackPressed: () => context.pop(),
         actions: [
           IconButton(
-            icon: const Icon(Icons.logout),
+            icon: const Icon(Icons.logout, color: Colors.white),
             onPressed: () {
               ref.read(authNotifierProvider.notifier).logout();
               context.go('/login');
