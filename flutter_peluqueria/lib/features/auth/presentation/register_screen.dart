@@ -55,7 +55,7 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
         telefono: _telefonoController.text.trim(),
         password: _passwordController.text,
         rol: _selectedRole,
-        serviciosEspecializados: _selectedRole == 'peluquero' ? _selectedServices : null,
+        serviciosEspecializados: _selectedRole == 'peluquero' ? _selectedServices : [],
       );
 
       final authResponse =

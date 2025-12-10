@@ -46,7 +46,12 @@ final createAppointmentProvider = FutureProvider.family<Cita, CreateAppointmentR
 
     // El backend retorna { message, cita } en la clave 'cita'
     final raw = response.data is Map<String, dynamic> ? response.data['cita'] ?? response.data['data'] ?? response.data : response.data;
-    return Cita.fromJson(raw as Map<String, dynamic>);
+    final cita = Cita.fromJson(raw as Map<String, dynamic>);
+    
+    // Invalidar el provider de citas para refrescar la lista
+    ref.invalidate(appointmentProviderProvider);
+    
+    return cita;
   } catch (e) {
     throw Exception('Error al crear cita: $e');
   }
