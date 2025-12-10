@@ -18,83 +18,81 @@ class _ClientHomeScreenState extends ConsumerState<ClientHomeScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final authState = ref.watch(authNotifierProvider);
-    
-    return PopScope(
-      canPop: false,
-      onPopInvokedWithResult: (didPop, result) {
-        if (didPop) return;
-        showFloatingNotification(
-          context,
-          message: 'Usa el botón de logout para salir',
-          icon: Icons.logout,
-          duration: const Duration(seconds: 2),
+    return Consumer(
+      builder: (context, ref, _) {
+        final authState = ref.watch(authNotifierProvider);
+
+        return PopScope(
+          canPop: false,
+          onPopInvokedWithResult: (didPop, result) {
+            if (didPop) return;
+            showFloatingNotification(
+              context,
+              message: 'Usa el botón de logout para salir',
+              icon: Icons.logout,
+              duration: const Duration(seconds: 2),
+            );
+          },
+          child: Scaffold(
+            backgroundColor: Colors.white,
+            appBar: AppBar(
+              title: const Text('Barbería Premium'),
+              backgroundColor: Theme.of(context).colorScheme.primary,
+              foregroundColor: Colors.white,
+              elevation: 0,
+              leading: GoRouter.of(context).canPop()
+                  ? IconButton(
+                      icon: const Icon(Icons.arrow_back),
+                      onPressed: () => GoRouter.of(context).pop(),
+                    )
+                  : null,
+              actions: [
+                IconButton(
+                  icon: const Icon(Icons.logout),
+                  onPressed: () {
+                    ref.read(authNotifierProvider.notifier).logout();
+                    context.go('/login');
+                  },
+                )
+              ],
+            ),
+            body: authState.isAuthenticated
+                ? IndexedStack(
+                    index: _selectedIndex,
+                    children: [
+                      _HomeTab(authState: authState, ref: ref),
+                      const _ServicesTab(),
+                      const _AppointmentsTab(),
+                    ],
+                  )
+                : const Center(child: Text('No autorizado')),
+            bottomNavigationBar: BottomNavigationBar(
+              currentIndex: _selectedIndex,
+              onTap: (index) {
+                setState(() {
+                  _selectedIndex = index;
+                });
+              },
+              selectedItemColor: Theme.of(context).colorScheme.secondary,
+              unselectedItemColor: Colors.grey,
+              items: const [
+                BottomNavigationBarItem(
+                  icon: Icon(Icons.home),
+                  label: 'Inicio',
+                ),
+                BottomNavigationBarItem(
+                  icon: Icon(Icons.cut),
+                  label: 'Servicios',
+                ),
+                BottomNavigationBarItem(
+                  icon: Icon(Icons.calendar_today),
+                  label: 'Citas',
+                ),
+              ],
+            ),
+          ),
         );
       },
-      child: Scaffold(
-        backgroundColor: Colors.grey.shade50,
-        appBar: AppBar(
-          title: Row(
-            children: [
-              Icon(
-                Icons.content_cut,
-                color: Theme.of(context).colorScheme.secondary,
-              ),
-              const SizedBox(width: 8),
-              const Text('BARBERÍA PREMIUM'),
-            ],
-          ),
-          leading: GoRouter.of(context).canPop()
-              ? IconButton(
-                  icon: const Icon(Icons.arrow_back),
-                  onPressed: () => GoRouter.of(context).pop(),
-                )
-              : null,
-          actions: [
-            IconButton(
-              icon: const Icon(Icons.logout),
-              onPressed: () {
-                ref.read(authNotifierProvider.notifier).logout();
-                context.go('/login');
-              },
-            )
-          ],
-        ),
-        body: authState.isAuthenticated
-            ? IndexedStack(
-                index: _selectedIndex,
-                children: [
-                  _HomeTab(authState: authState),
-                  const _ServicesTab(),
-                  const _AppointmentsTab(),
-                ],
-              )
-            : const Center(child: Text('No autorizado')),
-        bottomNavigationBar: BottomNavigationBar(
-          currentIndex: _selectedIndex,
-          onTap: (index) {
-            setState(() {
-              _selectedIndex = index;
-            });
-          },
-          selectedItemColor: Theme.of(context).colorScheme.secondary,
-          unselectedItemColor: Colors.grey,
-          items: const [
-            BottomNavigationBarItem(
-              icon: Icon(Icons.home),
-              label: 'Inicio',
-            ),
-            BottomNavigationBarItem(
-              icon: Icon(Icons.cut),
-              label: 'Servicios',
-            ),
-            BottomNavigationBarItem(
-              icon: Icon(Icons.calendar_today),
-              label: 'Citas',
-            ),
-          ],
-        ),
-      ),
     );
   }
 }
@@ -102,8 +100,9 @@ class _ClientHomeScreenState extends ConsumerState<ClientHomeScreen> {
 // Tab de Inicio
 class _HomeTab extends ConsumerWidget {
   final dynamic authState;
+  final WidgetRef ref;
   
-  const _HomeTab({required this.authState});
+  const _HomeTab({required this.authState, required this.ref});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -111,53 +110,95 @@ class _HomeTab extends ConsumerWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Header con bienvenida
-          Container(
-            width: double.infinity,
-            padding: const EdgeInsets.all(24),
-            decoration: BoxDecoration(
-              gradient: LinearGradient(
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-                colors: [
-                  Theme.of(context).colorScheme.primary,
-                  Theme.of(context).colorScheme.tertiary,
-                ],
+          // Header con bienvenida y accent circles
+          Stack(
+            children: [
+              // Background gradient
+              Container(
+                width: double.infinity,
+                height: 260,
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                    colors: [
+                      Theme.of(context).colorScheme.primary,
+                      Theme.of(context).colorScheme.secondary.withValues(alpha: 0.7),
+                    ],
+                  ),
+                ),
               ),
-              borderRadius: const BorderRadius.only(
-                bottomLeft: Radius.circular(30),
-                bottomRight: Radius.circular(30),
+              // Accent circles
+              Positioned(
+                top: -40,
+                right: -40,
+                child: Container(
+                  width: 200,
+                  height: 200,
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    color: Colors.white.withValues(alpha: 0.08),
+                  ),
+                ),
               ),
-            ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  'Hola,',
-                  style: TextStyle(
-                    color: Colors.white.withValues(alpha: 0.8),
-                    fontSize: 16,
+              Positioned(
+                bottom: 40,
+                left: -50,
+                child: Container(
+                  width: 150,
+                  height: 150,
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    color: Colors.white.withValues(alpha: 0.06),
                   ),
                 ),
-                const SizedBox(height: 4),
-                Text(
-                  authState.usuario?.nombre ?? 'Cliente',
-                  style: TextStyle(
-                    color: Theme.of(context).colorScheme.secondary,
-                    fontSize: 28,
-                    fontWeight: FontWeight.bold,
-                  ),
+              ),
+              // Content
+              Padding(
+                padding: const EdgeInsets.fromLTRB(24, 32, 24, 32),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'Hola, ${authState.usuario?.nombre ?? 'Cliente'}',
+                      style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                            color: Colors.white,
+                            fontWeight: FontWeight.bold,
+                          ),
+                    ),
+                    const SizedBox(height: 8),
+                    Text(
+                      '¿Listo para tu próxima transformación?',
+                      style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                            color: Colors.white.withValues(alpha: 0.9),
+                          ),
+                    ),
+                    const SizedBox(height: 24),
+                    // Quick stats
+                    Row(
+                      children: [
+                        _StatBadge(
+                          icon: Icons.cut,
+                          label: 'Servicios',
+                          onTap: () {
+                            // Esta llamada viene del contexto del padre
+                            // Se manejará a través de la variable _selectedIndex
+                          },
+                        ),
+                        const SizedBox(width: 16),
+                        _StatBadge(
+                          icon: Icons.calendar_today,
+                          label: 'Mis Citas',
+                          onTap: () {
+                            // Esta llamada viene del contexto del padre
+                          },
+                        ),
+                      ],
+                    ),
+                  ],
                 ),
-                const SizedBox(height: 8),
-                Text(
-                  '¿Listo para tu próxima transformación?',
-                  style: TextStyle(
-                    color: Colors.white.withValues(alpha: 0.9),
-                    fontSize: 14,
-                  ),
-                ),
-              ],
-            ),
+              ),
+            ],
           ),
           
           const SizedBox(height: 24),
@@ -167,31 +208,58 @@ class _HomeTab extends ConsumerWidget {
             padding: const EdgeInsets.symmetric(horizontal: 16),
             child: SizedBox(
               width: double.infinity,
-              height: 60,
+              height: 56,
               child: ElevatedButton.icon(
                 onPressed: () => context.go('/appointments/new'),
-                icon: const Icon(Icons.calendar_month, size: 28),
+                icon: const Icon(Icons.add_circle, size: 24),
                 label: const Text(
-                  'AGENDAR CITA',
+                  'Agendar Cita',
                   style: TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                    letterSpacing: 1,
+                    fontSize: 16,
+                    fontWeight: FontWeight.w600,
                   ),
                 ),
                 style: ElevatedButton.styleFrom(
+                  backgroundColor: Theme.of(context).colorScheme.secondary,
+                  foregroundColor: Colors.white,
                   elevation: 4,
+                  shadowColor: Theme.of(context).colorScheme.secondary.withValues(alpha: 0.5),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
                 ),
               ),
             ),
           ),
 
-          const SizedBox(height: 24),
+          const SizedBox(height: 32),
           
           // Citas recientes
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16),
-            child: const _AppointmentsSection(),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    Icon(
+                      Icons.upcoming,
+                      color: Theme.of(context).colorScheme.primary,
+                      size: 24,
+                    ),
+                    const SizedBox(width: 8),
+                    Text(
+                      'Próximas Citas',
+                      style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                            fontWeight: FontWeight.bold,
+                          ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 16),
+                const _AppointmentsSection(),
+              ],
+            ),
           ),
           const SizedBox(height: 24),
         ],
@@ -676,6 +744,52 @@ class _AppointmentCard extends StatelessWidget {
                     ],
                   ),
                 ],
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+// Widget para badges de estadísticas rápidas
+class _StatBadge extends StatelessWidget {
+  final IconData icon;
+  final String label;
+  final VoidCallback onTap;
+
+  const _StatBadge({
+    required this.icon,
+    required this.label,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(12),
+        child: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+          decoration: BoxDecoration(
+            color: Colors.white.withValues(alpha: 0.15),
+            border: Border.all(color: Colors.white.withValues(alpha: 0.3)),
+            borderRadius: BorderRadius.circular(12),
+          ),
+          child: Row(
+            children: [
+              Icon(icon, color: Colors.white, size: 20),
+              const SizedBox(width: 8),
+              Text(
+                label,
+                style: const TextStyle(
+                  color: Colors.white,
+                  fontWeight: FontWeight.w600,
+                  fontSize: 13,
+                ),
               ),
             ],
           ),
