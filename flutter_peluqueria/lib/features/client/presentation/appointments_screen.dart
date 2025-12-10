@@ -147,6 +147,9 @@ class AppointmentsScreen extends ConsumerWidget {
                 appointment: a,
                 onEdit: null,
                 onCancel: null,
+                onDelete: () {
+                  _showDeleteDialog(context, ref, a.id);
+                },
               )),
             ],
           ],
@@ -301,11 +304,13 @@ class _PremiumAppointmentCard extends StatelessWidget {
   final dynamic appointment;
   final VoidCallback? onEdit;
   final VoidCallback? onCancel;
+  final VoidCallback? onDelete;
 
   const _PremiumAppointmentCard({
     required this.appointment,
     this.onEdit,
     this.onCancel,
+    this.onDelete,
   });
 
   Color _getStatusColor(String status) {
@@ -575,7 +580,7 @@ class _PremiumAppointmentCard extends StatelessWidget {
                   const SizedBox(height: 16),
 
                   // Action buttons
-                  if (onEdit != null || onCancel != null)
+                  if (onEdit != null || onCancel != null || onDelete != null)
                     Row(
                       children: [
                         if (onEdit != null)
@@ -618,7 +623,8 @@ class _PremiumAppointmentCard extends StatelessWidget {
                               ),
                             ),
                           ),
-                        if (onEdit != null && onCancel != null) const SizedBox(width: 12),
+                        if ((onEdit != null && onCancel != null) || (onEdit != null && onDelete != null))
+                          const SizedBox(width: 12),
                         if (onCancel != null)
                           Expanded(
                             child: Container(
@@ -657,6 +663,53 @@ class _PremiumAppointmentCard extends StatelessWidget {
                                 style: ElevatedButton.styleFrom(
                                   backgroundColor: Colors.transparent,
                                   foregroundColor: Colors.white,
+                                  shadowColor: Colors.transparent,
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(12),
+                                  ),
+                                  padding: const EdgeInsets.symmetric(vertical: 12),
+                                ),
+                              ),
+                            ),
+                          ),
+                        if (onDelete != null)
+                          Expanded(
+                            child: Container(
+                              decoration: BoxDecoration(
+                                gradient: LinearGradient(
+                                  colors: [
+                                    Colors.red.withValues(alpha: 0.15),
+                                    Colors.red.withValues(alpha: 0.08),
+                                  ],
+                                  begin: Alignment.topLeft,
+                                  end: Alignment.bottomRight,
+                                ),
+                                borderRadius: BorderRadius.circular(12),
+                                border: Border.all(
+                                  color: Colors.red.withValues(alpha: 0.3),
+                                  width: 1.5,
+                                ),
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: Colors.black.withValues(alpha: 0.3),
+                                    blurRadius: 8,
+                                    offset: const Offset(0, 4),
+                                  ),
+                                ],
+                              ),
+                              child: ElevatedButton.icon(
+                                onPressed: onDelete,
+                                icon: const Icon(Icons.delete_rounded, size: 18),
+                                label: const Text(
+                                  'Eliminar',
+                                  style: TextStyle(
+                                    fontWeight: FontWeight.w700,
+                                    fontSize: 14,
+                                  ),
+                                ),
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: Colors.transparent,
+                                  foregroundColor: Colors.red.shade300,
                                   shadowColor: Colors.transparent,
                                   shape: RoundedRectangleBorder(
                                     borderRadius: BorderRadius.circular(12),
@@ -905,6 +958,166 @@ void _showCancelDialog(BuildContext context, WidgetRef ref, String citaId) {
                 ),
               ],
             ),
+          ),
+        ),
+      );
+    },
+    transitionBuilder: (context, animation, secondaryAnimation, child) {
+      return ScaleTransition(
+        scale: Tween<double>(begin: 0.8, end: 1.0).animate(
+          CurvedAnimation(parent: animation, curve: Curves.easeOutBack),
+        ),
+        child: FadeTransition(
+          opacity: animation,
+          child: child,
+        ),
+      );
+    },
+  );
+}
+
+Future<void> _showDeleteDialog(
+  BuildContext context,
+  WidgetRef ref,
+  String citaId,
+) async {
+  await showGeneralDialog(
+    context: context,
+    barrierDismissible: true,
+    barrierLabel: MaterialLocalizations.of(context).modalBarrierDismissLabel,
+    barrierColor: Colors.black.withValues(alpha: 0.5),
+    transitionDuration: const Duration(milliseconds: 300),
+    pageBuilder: (context, animation, secondaryAnimation) {
+      return Dialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        child: Container(
+          decoration: BoxDecoration(
+            color: const Color(0xFF0E0E10),
+            borderRadius: BorderRadius.circular(16),
+            border: Border.all(
+              color: const Color(0xFFD4AF37).withValues(alpha: 0.3),
+              width: 1.5,
+            ),
+          ),
+          padding: const EdgeInsets.all(24),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              // Warning Icon
+              Container(
+                decoration: BoxDecoration(
+                  color: Colors.red.withValues(alpha: 0.1),
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(
+                    color: Colors.red.withValues(alpha: 0.3),
+                  ),
+                ),
+                padding: const EdgeInsets.all(12),
+                child: Icon(
+                  Icons.delete_outline,
+                  color: Colors.red[400],
+                  size: 32,
+                ),
+              ),
+              const SizedBox(height: 16),
+
+              // Title
+              Text(
+                'Eliminar cita',
+                style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                  color: Colors.white,
+                  fontWeight: FontWeight.bold,
+                  fontSize: 18,
+                ),
+                textAlign: TextAlign.center,
+              ),
+              const SizedBox(height: 8),
+
+              // Message
+              Text(
+                'Esta acción eliminará tu cita de forma permanente y no se podrá recuperar.',
+                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                  color: Colors.grey[400],
+                  height: 1.4,
+                ),
+                textAlign: TextAlign.center,
+              ),
+              const SizedBox(height: 24),
+
+              // Buttons
+              Row(
+                children: [
+                  Expanded(
+                    child: OutlinedButton(
+                      onPressed: () => Navigator.of(context).pop(),
+                      style: OutlinedButton.styleFrom(
+                        padding: const EdgeInsets.symmetric(vertical: 12),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                        side: BorderSide(color: Colors.grey.shade300),
+                      ),
+                      child: Text(
+                        'Mantener cita',
+                        style: TextStyle(
+                          color: Colors.grey[700],
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: ElevatedButton(
+                      onPressed: () async {
+                        Navigator.of(context).pop();
+
+                        try {
+                          await ref
+                              .read(deleteAppointmentNotifierProvider.notifier)
+                              .deleteAppointment(citaId);
+
+                          if (context.mounted) {
+                            await showFloatingNotification(
+                              context,
+                              title: 'Cita eliminada',
+                              message: 'Tu cita ha sido eliminada exitosamente',
+                              icon: Icons.check_circle_outline,
+                              color: Colors.green.shade50,
+                              duration: const Duration(seconds: 2),
+                            );
+                          }
+                        } catch (e) {
+                          if (context.mounted) {
+                            await showFloatingNotification(
+                              context,
+                              title: 'Error',
+                              message: 'No pudimos eliminar tu cita: $e',
+                              icon: Icons.error_outline,
+                              color: Colors.red.shade50,
+                              duration: const Duration(seconds: 3),
+                            );
+                          }
+                        }
+                      },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.red[400],
+                        foregroundColor: Colors.white,
+                        padding: const EdgeInsets.symmetric(vertical: 12),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                        elevation: 2,
+                      ),
+                      child: const Text(
+                        'Sí, eliminar',
+                        style: TextStyle(fontWeight: FontWeight.w600),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ],
           ),
         ),
       );

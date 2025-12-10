@@ -93,6 +93,16 @@ router.patch(
 );
 
 /**
+ * @route   DELETE /api/client/appointments/:id
+ * @desc    Delete an appointment (only if cancelled)
+ * @access  Private (Client)
+ */
+router.delete(
+  '/appointments/:id',
+  clientController.deleteAppointment
+);
+
+/**
  * @route   PATCH /api/client/profile
  * @desc    Update client profile
  * @access  Private (Client)

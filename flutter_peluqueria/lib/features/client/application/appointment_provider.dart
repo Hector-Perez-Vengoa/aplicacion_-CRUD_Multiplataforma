@@ -159,3 +159,30 @@ class UpdateAppointmentNotifier extends Notifier<AsyncValue<void>> {
 final updateAppointmentNotifierProvider = NotifierProvider<UpdateAppointmentNotifier, AsyncValue<void>>(() {
   return UpdateAppointmentNotifier();
 });
+
+/// Notifier para manejar la eliminación de citas
+class DeleteAppointmentNotifier extends Notifier<AsyncValue<void>> {
+  @override
+  AsyncValue<void> build() => const AsyncValue.data(null);
+
+  Future<void> deleteAppointment(String citaId) async {
+    state = const AsyncValue.loading();
+    
+    try {
+      final dioClient = ref.read(dioClientProvider);
+      await dioClient.delete('/client/appointments/$citaId');
+      
+      // Refrescar la lista de citas
+      ref.invalidate(appointmentProviderProvider);
+      
+      state = const AsyncValue.data(null);
+    } catch (e, stackTrace) {
+      state = AsyncValue.error(e, stackTrace);
+      rethrow;
+    }
+  }
+}
+
+final deleteAppointmentNotifierProvider = NotifierProvider<DeleteAppointmentNotifier, AsyncValue<void>>(() {
+  return DeleteAppointmentNotifier();
+});

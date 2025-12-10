@@ -558,6 +558,70 @@ export const cancelAppointment = async (req: any, res: Response): Promise<void> 
 };
 
 /**
+ * Delete an appointment (only if it's already cancelled)
+ */
+export const deleteAppointment = async (req: any, res: Response): Promise<void> => {
+  try {
+    const { id } = req.params;
+    const userId = req.user.userId;
+
+    // Get client
+    const cliente = await Cliente.findOne({ usuarioId: new Types.ObjectId(userId) });
+    if (!cliente) {
+      res.status(404).json({
+        error: {
+          code: 'CLIENT_NOT_FOUND',
+          message: 'Cliente no encontrado',
+        },
+      });
+      return;
+    }
+
+    const cita = await Cita.findOne({
+      _id: new Types.ObjectId(id),
+      clienteId: cliente._id,
+    });
+
+    if (!cita) {
+      res.status(404).json({
+        error: {
+          code: 'APPOINTMENT_NOT_FOUND',
+          message: 'Cita no encontrada',
+        },
+      });
+      return;
+    }
+
+    // Check if appointment is cancelled
+    if (cita.estado !== 'Cancelada') {
+      res.status(422).json({
+        error: {
+          code: 'CANNOT_DELETE_ACTIVE_APPOINTMENT',
+          message: 'Solo se pueden eliminar citas canceladas',
+        },
+      });
+      return;
+    }
+
+    // Delete the appointment
+    await Cita.findByIdAndDelete(new Types.ObjectId(id));
+
+    res.status(200).json({
+      message: 'Cita eliminada exitosamente',
+    });
+  } catch (error: any) {
+    console.error('Error al eliminar cita:', error);
+    res.status(500).json({
+      error: {
+        code: 'INTERNAL_ERROR',
+        message: 'Error al eliminar cita',
+        details: error.message,
+      },
+    });
+  }
+};
+
+/**
  * Update client profile
  */
 export const updateProfile = async (req: any, res: Response): Promise<void> => {
