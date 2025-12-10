@@ -6,52 +6,52 @@ extension NotificationTypeExt on NotificationType {
   Color getBackgroundColor(BuildContext context) {
     switch (this) {
       case NotificationType.success:
-        return Colors.green.shade50;
+        return const Color(0xFF0E0E10); // Negro
       case NotificationType.error:
-        return Colors.red.shade50;
+        return const Color(0xFF0E0E10); // Negro
       case NotificationType.warning:
-        return Colors.orange.shade50;
+        return const Color(0xFF0E0E10); // Negro
       case NotificationType.info:
-        return Colors.blue.shade50;
+        return const Color(0xFF0E0E10); // Negro
     }
   }
 
   Color getAccentColor(BuildContext context) {
     switch (this) {
       case NotificationType.success:
-        return Colors.green;
+        return const Color(0xFFD4AF37); // Oro
       case NotificationType.error:
-        return Colors.red;
+        return const Color(0xFFD4AF37); // Oro
       case NotificationType.warning:
-        return Colors.orange;
+        return const Color(0xFFD4AF37); // Oro
       case NotificationType.info:
-        return Colors.blue;
+        return const Color(0xFFD4AF37); // Oro
     }
   }
 
   Color getTextColor() {
     switch (this) {
       case NotificationType.success:
-        return Colors.green.shade800;
+        return Colors.white;
       case NotificationType.error:
-        return Colors.red.shade800;
+        return Colors.white;
       case NotificationType.warning:
-        return Colors.orange.shade800;
+        return Colors.white;
       case NotificationType.info:
-        return Colors.blue.shade800;
+        return Colors.white;
     }
   }
 
   Color getBorderColor() {
     switch (this) {
       case NotificationType.success:
-        return Colors.green.shade200;
+        return const Color(0xFFD4AF37).withValues(alpha: 0.5); // Oro semi-transparente
       case NotificationType.error:
-        return Colors.red.shade200;
+        return const Color(0xFFD4AF37).withValues(alpha: 0.5); // Oro semi-transparente
       case NotificationType.warning:
-        return Colors.orange.shade200;
+        return const Color(0xFFD4AF37).withValues(alpha: 0.5); // Oro semi-transparente
       case NotificationType.info:
-        return Colors.blue.shade200;
+        return const Color(0xFFD4AF37).withValues(alpha: 0.5); // Oro semi-transparente
     }
   }
 
@@ -128,16 +128,9 @@ Future<void> showFloatingNotification(
                     border: Border.all(color: borderColor, width: 2),
                     boxShadow: [
                       BoxShadow(
-                        color: accentColor.withValues(alpha: 0.3),
-                        blurRadius: 20,
-                        offset: const Offset(0, 8),
-                        spreadRadius: 1,
-                      ),
-                      BoxShadow(
-                        color: accentColor.withValues(alpha: 0.1),
-                        blurRadius: 40,
-                        offset: const Offset(0, 16),
-                        spreadRadius: 4,
+                        color: Colors.black.withValues(alpha: 0.4),
+                        blurRadius: 12,
+                        offset: const Offset(0, 6),
                       ),
                     ],
                   ),
@@ -181,7 +174,6 @@ Future<void> showFloatingNotification(
                         style: TextStyle(
                           fontSize: 13,
                           color: textColor.withValues(alpha: 0.85),
-                          height: 1.4,
                           fontWeight: FontWeight.w500,
                         ),
                         maxLines: 3,
@@ -189,20 +181,6 @@ Future<void> showFloatingNotification(
                         textAlign: TextAlign.center,
                       ),
                       const SizedBox(height: 16),
-                      Container(
-                        height: 1,
-                        margin: const EdgeInsets.symmetric(horizontal: 0),
-                        decoration: BoxDecoration(
-                          gradient: LinearGradient(
-                            colors: [
-                              accentColor.withValues(alpha: 0),
-                              accentColor.withValues(alpha: 0.2),
-                              accentColor.withValues(alpha: 0),
-                            ],
-                          ),
-                        ),
-                      ),
-                      const SizedBox(height: 12),
                       GestureDetector(
                         onTap: () => Navigator.of(context).pop(),
                         child: Container(

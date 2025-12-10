@@ -184,7 +184,7 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                           ),
                           const SizedBox(width: 12),
                           const Text(
-                            'Registro premium',
+                            'Crear cuenta',
                             style: TextStyle(
                               color: Colors.white,
                               fontWeight: FontWeight.w800,
@@ -193,67 +193,7 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                           ),
                         ],
                       ),
-                      const SizedBox(height: 18),
-                      Container(
-                        padding: const EdgeInsets.all(20),
-                        decoration: BoxDecoration(
-                          color: Colors.white.withValues(alpha: 0.06),
-                          borderRadius: BorderRadius.circular(18),
-                          border: Border.all(color: Colors.white.withValues(alpha: 0.08)),
-                          boxShadow: [
-                            BoxShadow(
-                              color: Colors.black.withValues(alpha: 0.45),
-                              blurRadius: 18,
-                              offset: const Offset(0, 10),
-                            ),
-                          ],
-                        ),
-                        child: Row(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Container(
-                              padding: const EdgeInsets.all(12),
-                              decoration: BoxDecoration(
-                                color: const Color(0xFFD4AF37),
-                                shape: BoxShape.circle,
-                                boxShadow: [
-                                  BoxShadow(
-                                    color: Colors.black.withValues(alpha: 0.35),
-                                    blurRadius: 12,
-                                    offset: const Offset(0, 6),
-                                  ),
-                                ],
-                              ),
-                              child: const Icon(Icons.content_cut, color: Colors.black, size: 22),
-                            ),
-                            const SizedBox(width: 14),
-                            Expanded(
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  const Text(
-                                    'Crea tu cuenta',
-                                    style: TextStyle(
-                                      color: Colors.white,
-                                      fontWeight: FontWeight.w800,
-                                      fontSize: 18,
-                                    ),
-                                  ),
-                                  const SizedBox(height: 6),
-                                  Text(
-                                    'Reserva, gestiona y presume tu perfil barber en minutos.',
-                                    style: TextStyle(
-                                      color: Colors.white.withValues(alpha: 0.72),
-                                      fontSize: 13,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                      const SizedBox(height: 20),
+                      const SizedBox(height: 40),
                       Container(
                         padding: const EdgeInsets.all(22),
                         decoration: BoxDecoration(
@@ -278,7 +218,7 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                                   Icon(Icons.vpn_key, color: Color(0xFFD4AF37)),
                                   SizedBox(width: 8),
                                   Text(
-                                    'Datos de acceso',
+                                    'Información de acceso',
                                     style: TextStyle(
                                       color: Colors.white,
                                       fontWeight: FontWeight.w800,
@@ -287,12 +227,7 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                                   ),
                                 ],
                               ),
-                              const SizedBox(height: 8),
-                              Text(
-                                'Elige tu rol y completa la información para empezar a reservar o atender clientes.',
-                                style: TextStyle(color: Colors.white.withValues(alpha: 0.7)),
-                              ),
-                              const SizedBox(height: 16),
+                              const SizedBox(height: 20),
 
                               if (_errorMessage != null)
                                 Container(

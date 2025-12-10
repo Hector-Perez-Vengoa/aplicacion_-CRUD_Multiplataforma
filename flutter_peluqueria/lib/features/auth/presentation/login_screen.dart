@@ -155,66 +155,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                           ),
                         ],
                       ),
-                      const SizedBox(height: 18),
-                      Container(
-                        padding: const EdgeInsets.all(22),
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(20),
-                          color: Colors.white.withValues(alpha: 0.06),
-                          border: Border.all(color: Colors.white.withValues(alpha: 0.08)),
-                          boxShadow: [
-                            BoxShadow(
-                              color: Colors.black.withValues(alpha: 0.4),
-                              blurRadius: 18,
-                              offset: const Offset(0, 12),
-                            ),
-                          ],
-                        ),
-                        child: Row(
-                          children: [
-                            Container(
-                              padding: const EdgeInsets.all(12),
-                              decoration: BoxDecoration(
-                                color: const Color(0xFFD4AF37),
-                                shape: BoxShape.circle,
-                                boxShadow: [
-                                  BoxShadow(
-                                    color: Colors.black.withValues(alpha: 0.35),
-                                    blurRadius: 12,
-                                    offset: const Offset(0, 6),
-                                  ),
-                                ],
-                              ),
-                              child: const Icon(Icons.star, color: Colors.black87, size: 22),
-                            ),
-                            const SizedBox(width: 14),
-                            Expanded(
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  const Text(
-                                    'Bienvenido de vuelta',
-                                    style: TextStyle(
-                                      color: Colors.white,
-                                      fontWeight: FontWeight.w800,
-                                      fontSize: 18,
-                                    ),
-                                  ),
-                                  const SizedBox(height: 4),
-                                  Text(
-                                    'Agenda, paga y controla tus citas en un entorno premium.',
-                                    style: TextStyle(
-                                      color: Colors.white.withValues(alpha: 0.7),
-                                      fontSize: 13,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                      const SizedBox(height: 20),
+                      const SizedBox(height: 40),
                       Container(
                         padding: const EdgeInsets.all(22),
                         decoration: BoxDecoration(
@@ -248,12 +189,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                                   ),
                                 ],
                               ),
-                              const SizedBox(height: 10),
-                              Text(
-                                'Ingresa tu cuenta para reservar o gestionar tus servicios.',
-                                style: TextStyle(color: Colors.white.withValues(alpha: 0.7)),
-                              ),
-                              const SizedBox(height: 18),
+                              const SizedBox(height: 20),
 
                               if (_errorMessage != null)
                                 Container(
@@ -354,21 +290,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                                 },
                                 enabled: !authState.isLoading,
                               ),
-                              const SizedBox(height: 14),
-
-                              Row(
-                                children: [
-                                  const Icon(Icons.shield_moon_outlined, size: 18, color: Colors.white70),
-                                  const SizedBox(width: 8),
-                                  Expanded(
-                                    child: Text(
-                                      'Tus credenciales viajan cifradas en canales seguros.',
-                                      style: TextStyle(color: Colors.white.withValues(alpha: 0.6)),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                              const SizedBox(height: 18),
+                              const SizedBox(height: 24),
 
                               SizedBox(
                                 height: 54,
