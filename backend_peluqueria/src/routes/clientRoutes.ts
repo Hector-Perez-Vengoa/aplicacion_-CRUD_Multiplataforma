@@ -4,6 +4,7 @@ import { authenticateToken, requireRole } from '../middleware/auth';
 import { validate } from '../middleware/validate';
 import {
   createAppointmentValidation,
+  updateAppointmentValidation,
   cancelAppointmentValidation,
   getAvailabilityValidation,
   updateProfileValidation,
@@ -68,6 +69,17 @@ router.get('/appointments', clientController.getAppointments);
  * @access  Private (Client)
  */
 router.get('/appointments/:id', clientController.getAppointmentDetail);
+
+/**
+ * @route   PATCH /api/client/appointments/:id
+ * @desc    Update an appointment
+ * @access  Private (Client)
+ */
+router.patch(
+  '/appointments/:id',
+  validate(updateAppointmentValidation),
+  clientController.updateAppointment
+);
 
 /**
  * @route   PATCH /api/client/appointments/:id/cancel

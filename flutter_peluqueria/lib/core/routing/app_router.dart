@@ -6,8 +6,10 @@ import '../../features/client/presentation/client_home_screen.dart';
 import '../../features/client/presentation/book_appointment_screen.dart';
 import '../../features/client/presentation/appointments_screen.dart';
 import '../../features/client/presentation/services_screen.dart';
+import '../../features/client/presentation/edit_appointment_screen.dart';
 import '../../features/hairstylist/presentation/hairstylist_home_screen.dart';
 import '../../domain/models/peluquero.dart';
+import '../../domain/models/cita.dart';
 
 /// Rutas de la aplicación
 class AppRoutes {
@@ -73,6 +75,13 @@ class AppRouter {
         builder: (context, state) {
           final hairstylist = state.extra as Peluquero?;
           return BookAppointmentScreen(initialHairstylist: hairstylist);
+        },
+      ),
+      GoRoute(
+        path: '/appointments/edit/:id',
+        builder: (context, state) {
+          final cita = state.extra as Cita;
+          return EditAppointmentScreen(cita: cita);
         },
       ),
 

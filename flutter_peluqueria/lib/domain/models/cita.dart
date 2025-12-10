@@ -11,6 +11,11 @@ class Cita {
   final CancelacionInfo? cancelacion;
   final DateTime? createdAt;
   final DateTime? updatedAt;
+  
+  // IDs originales para edición
+  final String? clienteId;
+  final String? peluqueroId;
+  final dynamic servicioId; // Puede ser String o Map
 
   Cita({
     required this.id,
@@ -25,6 +30,9 @@ class Cita {
     this.cancelacion,
     this.createdAt,
     this.updatedAt,
+    this.clienteId,
+    this.peluqueroId,
+    this.servicioId,
   });
 
   factory Cita.fromJson(Map<String, dynamic> json) {
@@ -59,6 +67,13 @@ class Cita {
       updatedAt: json['updatedAt'] != null
           ? DateTime.tryParse(json['updatedAt'] as String)
           : null,
+      clienteId: json['clienteId'] is Map 
+          ? (json['clienteId'] as Map)['_id'] 
+          : json['clienteId'],
+      peluqueroId: json['peluqueroId'] is Map 
+          ? (json['peluqueroId'] as Map)['_id'] 
+          : json['peluqueroId'],
+      servicioId: json['servicioId'],
     );
   }
 

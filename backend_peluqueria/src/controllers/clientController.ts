@@ -320,6 +320,171 @@ export const getAppointmentDetail = async (req: any, res: Response): Promise<voi
 };
 
 /**
+ * Update an appointment
+ */
+export const updateAppointment = async (req: any, res: Response): Promise<void> => {
+  try {
+    const { id } = req.params;
+    const { peluqueroId, servicioId, fechaHoraInicio, notasCliente } = req.body;
+    const userId = req.user.userId;
+
+    // Get client
+    const cliente = await Cliente.findOne({ usuarioId: new Types.ObjectId(userId) });
+    if (!cliente) {
+      res.status(404).json({
+        error: {
+          code: 'CLIENT_NOT_FOUND',
+          message: 'Cliente no encontrado',
+        },
+      });
+      return;
+    }
+
+    // Find appointment
+    const cita = await Cita.findOne({
+      _id: new Types.ObjectId(id),
+      clienteId: cliente._id,
+    });
+
+    if (!cita) {
+      res.status(404).json({
+        error: {
+          code: 'APPOINTMENT_NOT_FOUND',
+          message: 'Cita no encontrada',
+        },
+      });
+      return;
+    }
+
+    // Check if appointment can be edited (only Pendiente or Confirmada)
+    if (!['Pendiente', 'Confirmada'].includes(cita.estado)) {
+      res.status(422).json({
+        error: {
+          code: 'APPOINTMENT_CANNOT_BE_EDITED',
+          message: 'Solo se pueden editar citas pendientes o confirmadas',
+        },
+      });
+      return;
+    }
+
+    // Check if appointment is at least 24 hours in the future
+    const now = new Date();
+    const hoursUntilAppointment = (cita.fechaHoraInicio.getTime() - now.getTime()) / (1000 * 60 * 60);
+
+    if (hoursUntilAppointment < 24) {
+      res.status(422).json({
+        error: {
+          code: 'EDIT_TOO_LATE',
+          message: 'No se puede editar una cita con menos de 24 horas de anticipación',
+        },
+      });
+      return;
+    }
+
+    // Get service to calculate duration
+    const servicioIdToUse = servicioId || cita.servicioId;
+    const servicio = await Servicio.findById(servicioIdToUse);
+    
+    if (!servicio) {
+      res.status(404).json({
+        error: {
+          code: 'SERVICE_NOT_FOUND',
+          message: 'Servicio no encontrado',
+        },
+      });
+      return;
+    }
+
+    // If fechaHoraInicio is being changed, check availability
+    if (fechaHoraInicio) {
+      const newFechaInicio = new Date(fechaHoraInicio);
+      const newFechaFin = new Date(newFechaInicio.getTime() + servicio.duracionMinutos * 60000);
+      const peluqueroIdToUse = peluqueroId || cita.peluqueroId;
+
+      // Check if new time slot is available
+      const conflictingAppointment = await Cita.findOne({
+        _id: { $ne: cita._id }, // Exclude current appointment
+        peluqueroId: peluqueroIdToUse,
+        estado: { $in: ['Pendiente', 'Confirmada'] },
+        $or: [
+          {
+            fechaHoraInicio: { $lt: newFechaFin },
+            fechaHoraFin: { $gt: newFechaInicio },
+          },
+        ],
+      });
+
+      if (conflictingAppointment) {
+        res.status(409).json({
+          error: {
+            code: 'TIME_SLOT_NOT_AVAILABLE',
+            message: 'El horario seleccionado no está disponible',
+          },
+        });
+        return;
+      }
+
+      // Update date and time
+      cita.fechaHoraInicio = newFechaInicio;
+      cita.fechaHoraFin = newFechaFin;
+    }
+
+    // Update other fields if provided
+    if (peluqueroId) {
+      // Verify hairstylist exists
+      const peluquero = await Peluquero.findById(peluqueroId);
+      if (!peluquero) {
+        res.status(404).json({
+          error: {
+            code: 'HAIRSTYLIST_NOT_FOUND',
+            message: 'Peluquero no encontrado',
+          },
+        });
+        return;
+      }
+      cita.peluqueroId = new Types.ObjectId(peluqueroId);
+    }
+
+    if (servicioId) {
+      cita.servicioId = new Types.ObjectId(servicioId);
+      cita.precioTotal = servicio.precio;
+      
+      // Recalculate end time if service changed but not date
+      if (!fechaHoraInicio) {
+        cita.fechaHoraFin = new Date(cita.fechaHoraInicio.getTime() + servicio.duracionMinutos * 60000);
+      }
+    }
+
+    if (notasCliente !== undefined) {
+      cita.notasCliente = notasCliente;
+    }
+
+    // Save updated appointment
+    await cita.save();
+
+    // Populate and return updated appointment
+    const updatedCita = await Cita.findById(cita._id)
+      .populate('clienteId', 'nombre apellido telefono')
+      .populate('peluqueroId', 'nombre apellido especialidades')
+      .populate('servicioId', 'nombre descripcion precio duracionMinutos');
+
+    res.status(200).json({
+      message: 'Cita actualizada exitosamente',
+      cita: updatedCita,
+    });
+  } catch (error: any) {
+    console.error('Error al actualizar cita:', error);
+    res.status(500).json({
+      error: {
+        code: 'INTERNAL_ERROR',
+        message: 'Error al actualizar cita',
+        details: error.message,
+      },
+    });
+  }
+};
+
+/**
  * Cancel an appointment
  */
 export const cancelAppointment = async (req: any, res: Response): Promise<void> => {

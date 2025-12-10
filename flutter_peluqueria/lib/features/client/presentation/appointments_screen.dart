@@ -152,21 +152,38 @@ class AppointmentsScreen extends ConsumerWidget {
                         value: appointment.peluquero,
                       ),
                       
-                      if (appointment.estado == 'confirmada') ...[
+                      if (appointment.estado == 'Pendiente' || appointment.estado == 'Confirmada') ...[
                         const SizedBox(height: 16),
-                        SizedBox(
-                          width: double.infinity,
-                          child: OutlinedButton.icon(
-                            onPressed: () {
-                              _showCancelDialog(context, ref, appointment.id);
-                            },
-                            icon: const Icon(Icons.close),
-                            label: const Text('Cancelar cita'),
-                            style: OutlinedButton.styleFrom(
-                              foregroundColor: Colors.red,
-                              side: const BorderSide(color: Colors.red),
+                        Row(
+                          children: [
+                            Expanded(
+                              child: ElevatedButton.icon(
+                                onPressed: () {
+                                  context.push('/appointments/edit/${appointment.id}', extra: appointment);
+                                },
+                                icon: const Icon(Icons.edit),
+                                label: const Text('Editar'),
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: Theme.of(context).colorScheme.secondary,
+                                  foregroundColor: Colors.black,
+                                ),
+                              ),
                             ),
-                          ),
+                            const SizedBox(width: 12),
+                            Expanded(
+                              child: OutlinedButton.icon(
+                                onPressed: () {
+                                  _showCancelDialog(context, ref, appointment.id);
+                                },
+                                icon: const Icon(Icons.close),
+                                label: const Text('Cancelar'),
+                                style: OutlinedButton.styleFrom(
+                                  foregroundColor: Colors.red,
+                                  side: const BorderSide(color: Colors.red),
+                                ),
+                              ),
+                            ),
+                          ],
                         ),
                       ],
                     ],

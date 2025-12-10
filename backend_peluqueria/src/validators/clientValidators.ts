@@ -19,6 +19,29 @@ export const createAppointmentValidation = [
     .isLength({ max: 500 }).withMessage('Las notas no pueden exceder 500 caracteres'),
 ];
 
+export const updateAppointmentValidation = [
+  param('id')
+    .notEmpty().withMessage('El ID de la cita es requerido')
+    .isMongoId().withMessage('ID de cita inválido'),
+  
+  body('peluqueroId')
+    .optional()
+    .isMongoId().withMessage('ID de peluquero inválido'),
+  
+  body('servicioId')
+    .optional()
+    .isMongoId().withMessage('ID de servicio inválido'),
+  
+  body('fechaHoraInicio')
+    .optional()
+    .isISO8601().withMessage('Formato de fecha inválido'),
+  
+  body('notasCliente')
+    .optional()
+    .isString().withMessage('Las notas deben ser texto')
+    .isLength({ max: 500 }).withMessage('Las notas no pueden exceder 500 caracteres'),
+];
+
 export const cancelAppointmentValidation = [
   param('id')
     .notEmpty().withMessage('El ID de la cita es requerido')

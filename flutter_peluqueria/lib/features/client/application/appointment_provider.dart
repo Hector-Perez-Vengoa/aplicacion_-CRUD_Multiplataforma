@@ -106,3 +106,56 @@ class CancelAppointmentNotifier extends Notifier<AsyncValue<void>> {
 final cancelAppointmentNotifierProvider = NotifierProvider<CancelAppointmentNotifier, AsyncValue<void>>(() {
   return CancelAppointmentNotifier();
 });
+
+/// Request para actualizar una cita
+class UpdateAppointmentRequest {
+  final String citaId;
+  final String? peluqueroId;
+  final String? servicioId;
+  final DateTime? fechaHoraInicio;
+  final String? notasCliente;
+
+  UpdateAppointmentRequest({
+    required this.citaId,
+    this.peluqueroId,
+    this.servicioId,
+    this.fechaHoraInicio,
+    this.notasCliente,
+  });
+
+  Map<String, dynamic> toJson() {
+    final Map<String, dynamic> data = {};
+    if (peluqueroId != null) data['peluqueroId'] = peluqueroId;
+    if (servicioId != null) data['servicioId'] = servicioId;
+    if (fechaHoraInicio != null) data['fechaHoraInicio'] = fechaHoraInicio!.toIso8601String();
+    if (notasCliente != null) data['notasCliente'] = notasCliente;
+    return data;
+  }
+}
+
+/// Notifier para manejar el estado de actualización de citas
+class UpdateAppointmentNotifier extends Notifier<AsyncValue<void>> {
+  @override
+  AsyncValue<void> build() => const AsyncValue.data(null);
+
+  Future<void> updateAppointment(UpdateAppointmentRequest request) async {
+    state = const AsyncValue.loading();
+    
+    try {
+      final dioClient = ref.read(dioClientProvider);
+      await dioClient.patch('/client/appointments/${request.citaId}', data: request.toJson());
+      
+      // Refrescar la lista de citas
+      ref.invalidate(appointmentProviderProvider);
+      
+      state = const AsyncValue.data(null);
+    } catch (e, stackTrace) {
+      state = AsyncValue.error(e, stackTrace);
+      rethrow;
+    }
+  }
+}
+
+final updateAppointmentNotifierProvider = NotifierProvider<UpdateAppointmentNotifier, AsyncValue<void>>(() {
+  return UpdateAppointmentNotifier();
+});
