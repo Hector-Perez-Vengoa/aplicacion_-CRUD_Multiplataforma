@@ -3,7 +3,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../application/appointment_provider.dart';
 import '../../../core/widgets/floating_notification.dart';
-import '../../../core/widgets/premium_app_bar.dart';
 
 class AppointmentsScreen extends ConsumerWidget {
   const AppointmentsScreen({super.key});
@@ -14,10 +13,6 @@ class AppointmentsScreen extends ConsumerWidget {
 
     return Scaffold(
       backgroundColor: Colors.grey.shade50,
-      appBar: PremiumAppBarWithIcon(
-        icon: Icons.calendar_today,
-        title: 'Mis Citas',
-      ),
       body: appointmentsAsync.when(
         data: (appointments) {
           if (appointments.isEmpty) {

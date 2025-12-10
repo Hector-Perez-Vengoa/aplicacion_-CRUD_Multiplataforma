@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../../../core/widgets/premium_app_bar.dart';
 import '../application/service_provider.dart';
 
 class ServicesScreen extends ConsumerWidget {
@@ -12,10 +11,6 @@ class ServicesScreen extends ConsumerWidget {
     final colorScheme = Theme.of(context).colorScheme;
 
     return Scaffold(
-      appBar: PremiumAppBarWithIcon(
-        title: 'Nuestros Servicios',
-        icon: Icons.cut,
-      ),
       body: servicesAsync.when(
         data: (services) {
           if (services.isEmpty) {
