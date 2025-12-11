@@ -922,7 +922,7 @@ void _showCancelDialog(BuildContext context, WidgetRef ref, String citaId) {
                                 title: 'Cita cancelada',
                                 message: 'Tu cita ha sido cancelada exitosamente',
                                 icon: Icons.check_circle_outline,
-                                color: Colors.green.shade50,
+                                type: NotificationType.success,
                                 duration: const Duration(seconds: 2),
                               );
                             }
@@ -933,7 +933,7 @@ void _showCancelDialog(BuildContext context, WidgetRef ref, String citaId) {
                                 title: 'Error',
                                 message: 'No pudimos cancelar tu cita: $e',
                                 icon: Icons.error_outline,
-                                color: Colors.red.shade50,
+                                type: NotificationType.error,
                                 duration: const Duration(seconds: 3),
                               );
                             }
@@ -1083,7 +1083,7 @@ Future<void> _showDeleteDialog(
                               title: 'Cita eliminada',
                               message: 'Tu cita ha sido eliminada exitosamente',
                               icon: Icons.check_circle_outline,
-                              color: Colors.green.shade50,
+                              type: NotificationType.success,
                               duration: const Duration(seconds: 2),
                             );
                           }
@@ -1094,7 +1094,7 @@ Future<void> _showDeleteDialog(
                               title: 'Error',
                               message: 'No pudimos eliminar tu cita: $e',
                               icon: Icons.error_outline,
-                              color: Colors.red.shade50,
+                              type: NotificationType.error,
                               duration: const Duration(seconds: 3),
                             );
                           }
